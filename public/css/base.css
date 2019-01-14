@@ -1,0 +1,27 @@
+
+html, body {
+  height: 100%;
+  min-height: 100%;
+  padding: 0;
+  margin: 0;
+
+  font-size: 12pt;
+  font-family: sans-serif;
+  text-align: center;
+
+  color: #444;
+}
+
+section {
+  margin: 0 auto;
+  width: 50%;
+}
+
+form#game .game-add {
+  display: inline-block;
+}
+
+td.entry-edit, .entry-delete {
+  cursor: pointer;
+  display: table-cell !important;
+}

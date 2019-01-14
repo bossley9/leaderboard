@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8" />
+    <title>Leaderboard</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/base.css" />
+  </head>
+  <body>
+    <section>
+
+      <h2>Leaderboards</h2>
+
+        <table>
+          <tr>
+            <form id="game" method="POST">
+              <!-- game options -->
+              <td>
+                <div class="input-field game-add">
+                  <select id="game-select">
+
+                    <% if (gameList.length == 0) { %>
+                      <option value="1" disabled selected data-invalid="true">please create a game to continue.</option>
+                    <% } %>
+
+                    <% for (var i = 0; i < gameList.length; i++) { %>
+                      <% if (gameList[i] == currGame) { %>
+                        <!-- if current game, select -->
+                        <option value="<%= i+1 %>" selected><%= gameList[i] %></option>
+                      <% } else { %>
+                        <option value="<%= i+1 %>"><%= gameList[i] %></option>
+                      <% } %>
+                    <% } %>
+
+                  </select>
+                  <label>Game</label>
+                </div>
+              </td>
+              <!-- add input -->
+              <td>
+                <div class="input-field game-add">
+                  <input type="text" class="input-game" name="game" />
+                  <label for="game">game name</label>
+                </div>
+              </td>
+              <!-- add button -->
+              <td>
+                <button for="game" class="game-add btn green lighten-2">Add</button>
+              </td>
+            </form>
+            <td>
+              <button id="game-delete" class="btn red lighten-2">Delete selected game</button>
+            </td>
+
+          </tr>
+        </table>
+
+      <table class="striped">
+        <thead>
+          <tr>
+            <td>Username</td>
+            <td>Score</td>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (var i = 0; i < data.length; i++) { %>
+          <tr>
+            <td class="entry-username"><%= data[i].user_name %></td>
+            <td class="entry-score"><%= data[i].score %></td>
+            <td class="entry-delete btn red lighten-2">delete</td>
+          </tr>
+          <% } %>
+          <tr class="table-add">
+            <form id="user" method="POST">
+              <td>
+                <div class="input-field">
+                  <!--must include: no spaces, length 3 to 10 characters-->
+                  <input class="input-username" autocomplete type="text" required name="username" pattern="[^\s]+" minlength="3" maxlength="20" title="must contain no spaces" />
+                  <label for="username">username</label>
+                </div>
+              </td>
+              <td>
+                <div class="input-field">
+                  <input class="input-score" type="number" required name="score" min="0" max="4294967295" autocomplete="off" />
+                  <label for="score">score</label>
+                </div>
+              </td>
+              <td>
+                <button class="btn green lighten-2" type="submit">add</button>
+              </td>
+            </form>
+          </tr>
+        </tbody>
+      </table>
+
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <script>
+
+      // -----------------------------------------------------------------------
+      // Materialize
+      // -----------------------------------------------------------------------
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        var instances = M.FormSelect.init(elems);
+      });
+
+      // -----------------------------------------------------------------------
+      // <Select> change
+      // -----------------------------------------------------------------------
+
+      $('select#game-select').on('change', function () {
+        var gameName = this.options[this.selectedIndex].text;
+        window.location = "/leaderboard/entries/" + gameName;
+      });
+
+      // -----------------------------------------------------------------------
+      // CREATE game
+      // -----------------------------------------------------------------------
+
+      $('form#game').on('submit', function() {
+        var game = $('input.input-game').val();
+        if (game.length > 40) {
+          M.toast({html: 'game name can only be a max of 40 characters', classes: "red lighten-2"});
+        } else if (game.length == 0) {
+          M.toast({html: 'game name field cannot be empty', classes: "red lighten-2"});
+        } else {
+          $.ajax({
+            type: 'POST',
+            url: '/leaderboard/api/createGame',
+            data: {
+              game: game,
+            },
+            success: function(data) {
+              window.location = "/leaderboard/entries/" + data;
+            },
+          });
+        }
+
+        return false;
+      });
+
+      // -----------------------------------------------------------------------
+      // DELETE game
+      // -----------------------------------------------------------------------
+
+      $('button#game-delete').on('click', function() {
+        var gSelect = document.getElementById("game-select");
+        var game = gSelect.options[gSelect.selectedIndex].text;
+
+        if (gSelect.firstElementChild.dataset.invalid == "true") {
+          M.toast({html: 'please first create a valid game', classes: "red lighten-2"});
+        } else {
+          $.ajax({
+            type: 'DELETE',
+            url: '/leaderboard/api/deleteGame',
+            data: {
+              game: game,
+            },
+            success: function(data) {
+              window.location = "/leaderboard/entries/";
+            },
+          });
+        }
+
+        return false;
+      });
+
+      // -----------------------------------------------------------------------
+      // CREATE user/score
+      // -----------------------------------------------------------------------
+
+      $('form#user').on('submit', function() {
+        var gSelect = document.getElementById("game-select");
+        var game = gSelect.options[gSelect.selectedIndex].text;
+
+        if (gSelect.firstElementChild.dataset.invalid == "true") {
+          M.toast({html: 'please first create a valid game', classes: "red lighten-2"});
+        } else {
+          $.ajax({
+            type: 'POST',
+            url: '/leaderboard/api/createUserScore',
+            data: {
+              game: game,
+              username: $('input.input-username').val(),
+              score: $('input.input-score').val(),
+            },
+            success: function(data) {
+              location.reload();
+            },
+          });
+        }
+
+        return false;
+      });
+
+      // -----------------------------------------------------------------------
+      // DELETE user/score
+      // -----------------------------------------------------------------------
+
+      $('td.entry-delete').on('click', function() {
+        var gSelect = document.getElementById("game-select");
+        var game = gSelect.options[gSelect.selectedIndex].text;
+
+        $.ajax({
+          type: 'DELETE',
+          url: '/leaderboard/api/deleteUserScore',
+          data: {
+            game: game,
+            username: $(this).prev().prev().text(),
+            score: $(this).prev().text(),
+          },
+          success: function(data) {
+            location.reload();
+          },
+        });
+        return false;
+      });
+
+    </script>
+  </body>
+</html>

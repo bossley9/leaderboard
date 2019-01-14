@@ -19,7 +19,19 @@ urlencodedParser = bodyParser.urlencoded({ extended: false });
 // client-sensitive information stored here
 var KEYS = require('./KEYS');
 
-// create connection
+
+
+// create connection and database
+var mysql = require('mysql2');
+connection = mysql.createConnection({
+  host: 'localhost',
+  user: KEYS.username,
+  password: KEYS.password,
+});
+
+// TEMP - caveat - assumes "leaderboards" database has already been created
+
+// create sequelize connection
 var sequelize = new Sequelize('leaderboards', KEYS.username, KEYS.password, {
   host: 'localhost',
   dialect: 'mysql',
@@ -30,7 +42,21 @@ var sequelize = new Sequelize('leaderboards', KEYS.username, KEYS.password, {
     idle: 10000
   },
 
+  // TEMP - suppresses String based operator warning
+  operatorsAliases: false
 });
+
+var models = require('./models/models');
+
+var Score = models.score;
+var User;
+var Game;
+
+
+// routes
+app.use(require('./controllers/leaderboards/entries'));
+app.use(require('./controllers/leaderboards/api/games'));
+app.use(require('./controllers/leaderboards/api/scores'));
 
 
 
