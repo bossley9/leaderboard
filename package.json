@@ -1,0 +1,33 @@
+{
+  "name": "leaderboard",
+  "version": "0.0.1",
+  "description": "A RESTful API Leaderboard Node module designed for use in games and other projects",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha || exit 0",
+    "start": "nodemon app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bossley9/leaderboard.git"
+  },
+  "author": "Sam Bossley",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bossley9/leaderboard/issues"
+  },
+  "homepage": "https://github.com/bossley9/leaderboard#readme",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.9",
+    "sinon": "^7.2.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "mysql2": "^1.6.4",
+    "sequelize": "^4.42.0"
+  }
+}
