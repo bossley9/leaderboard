@@ -2,6 +2,7 @@
 
 
 var routes = require('express').Router();
+var models = require('../../../models/models');
 
 
 
@@ -10,47 +11,52 @@ var routes = require('express').Router();
  */
 routes.post('/leaderboards/api/createGame', urlencodedParser, function(req, res) {
 
+  var gameList = [];
+
   if (req.body.game.length > 0) {
 
-    connection.query('SELECT * FROM games WHERE delete_stamp IS NULL', function(err, result) {
-      if (err) throw err;
-      var gameList = [];
-
-      for (var i = 0; i < result.length; i++) {
-        gameList.push(result[i].game_name);
+    // SELECT name FROM games WHERE delete_stamp IS NULL;
+    models.Game.findAll({
+      attributes: ['name'],
+      where: {delete_stamp: null}
+    }).then(function(games) {
+      for (var g in games) {
+        gameList.push(games[g].dataValues.name);
       }
 
-      // create game if not exists
-      connection.execute('INSERT IGNORE INTO games (game_name) VALUES (?)', [req.body.game], function(err, result) {
-        if (err) throw err;
-        // set game delete_stamp to null
-        connection.execute('UPDATE games SET delete_stamp=NULL WHERE game_name=BINARY ?', [req.body.game], function(err, result) {
-          if (err) throw err;
-          // get scores
-          connection.execute('SELECT * FROM scores JOIN games JOIN users WHERE games.game_name=BINARY ?', [req.body.game], function(err, result) {
-            if (err) throw err;
-            var data = [];
-            var currGame = req.body.game;
-
-            for (var i = 0; i < result.length; i++) {
-              data.push(result[i]);
-            }
-
-            res.send(currGame);
-
-          });
-
-        });
-
+      // SELECT TOP 1 FROM games WHERE name=BINARY "req.body.game";
+      return models.Game.findOne({
+        attributes: ['name'],
+        where: { name: req.body.game }
       });
 
-    });
+    })
+    .then(function(game) {
+      if (!game) {
+        // INSERT INTO games (name) VALUES ("req.body.game");
+        return models.Game.create({ name: req.body.game });
+      }
+    })
+    .then(function(game) {
+
+      // UPDATE games SET delete_stamp=NULL WHERE game_name=BINARY "req.body.game";
+      return game.update({ delete_stamp: null });
+
+    })
+    .then(function(game) {
+
+      res.send(game.name);
+
+    })
+    .catch(function(e) { throw e });
 
   }
 
 });
 
 
+
+// TODO - also make sure that scores and unused users are stamped
 
 /**
  * DELETE request that handles the client-side "deletion" of a game. This will

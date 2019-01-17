@@ -1,4 +1,4 @@
-# leaderboard
+# leaderboard #
 
 This project is a RESTful API Node.js leaderboards module designed for use in games and other projects.
 

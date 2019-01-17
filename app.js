@@ -5,7 +5,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
-var Sequelize = require('sequelize');
+
 
 // template engine
 app.set('view engine', 'ejs');
@@ -21,36 +21,61 @@ var KEYS = require('./KEYS');
 
 
 
-// create connection and database
-var mysql = require('mysql2');
-connection = mysql.createConnection({
-  host: 'localhost',
-  user: KEYS.username,
-  password: KEYS.password,
+// promise to verify database exists before establishing a connection
+var dbPromise = new Promise(function(resolve, reject) {
+
+  var mysql = require('mysql2');
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: KEYS.username,
+    password: KEYS.password,
+  });
+
+  connection.query('CREATE DATABASE IF NOT EXISTS Leaderboard', function (err, result) {
+    if (err) reject(err);
+    else resolve(result);
+  });
+
 });
 
-// TEMP - caveat - assumes "leaderboards" database has already been created
+var Game, User, Score;
 
-// create sequelize connection
-var sequelize = new Sequelize('leaderboards', KEYS.username, KEYS.password, {
-  host: 'localhost',
-  dialect: 'mysql',
+dbPromise.then(function(result) {
 
-  pool: {
-    max: 5,
-    min: 0,
-    idle: 10000
-  },
+  // create models
+  var models = require('./models/models');
 
-  // TEMP - suppresses String based operator warning
-  operatorsAliases: false
-});
+  Game = models.Game;
+  User = models.User;
+  Score = models.Score;
 
-var models = require('./models/models');
+  //return models.sequelize.sync({force: true});
+  return models.sequelize.sync();
 
-var Score = models.score;
-var User;
-var Game;
+}).then(function(result) {
+  /*Game.create({name: "TestNull", delete_stamp: Date.now()})
+  .then(() => {
+    return Game.create({name: "TestValidGame"})
+  })
+  .then((game) => {
+    User.create({name: "Bob"})
+    .then((user) => {
+      Score.create({
+        score: 123,
+        score_user_id: user.id,
+        score_game_id: game.id,
+      }
+      //,
+      // {
+      //  include: [User, Game],
+      //}
+      )
+    })
+  })
+  */
+
+}).catch(function(e) { throw e });
+
 
 
 // routes

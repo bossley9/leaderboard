@@ -41,7 +41,7 @@
               <!-- add input -->
               <td>
                 <div class="input-field game-add">
-                  <input type="text" class="input-game" name="game" />
+                  <input type="text" class="input-game" autocomplete="off" name="game" />
                   <label for="game">game name</label>
                 </div>
               </td>
@@ -77,7 +77,7 @@
               <td>
                 <div class="input-field">
                   <!--must include: no spaces, length 3 to 10 characters-->
-                  <input class="input-username" autocomplete type="text" required name="username" pattern="[^\s]+" minlength="3" maxlength="20" title="must contain no spaces" />
+                  <input class="input-username" autocomplete="off" type="text" required name="username" pattern="[^\s]+" minlength="3" maxlength="20" title="must contain no spaces" />
                   <label for="username">username</label>
                 </div>
               </td>
@@ -117,7 +117,7 @@
 
       $('select#game-select').on('change', function () {
         var gameName = this.options[this.selectedIndex].text;
-        window.location = "/leaderboard/entries/" + gameName;
+        window.location = "/leaderboards/entries/" + gameName;
       });
 
       // -----------------------------------------------------------------------
@@ -133,12 +133,12 @@
         } else {
           $.ajax({
             type: 'POST',
-            url: '/leaderboard/api/createGame',
+            url: '/leaderboards/api/createGame',
             data: {
               game: game,
             },
             success: function(data) {
-              window.location = "/leaderboard/entries/" + data;
+              window.location = "/leaderboards/entries/" + data;
             },
           });
         }
@@ -159,12 +159,12 @@
         } else {
           $.ajax({
             type: 'DELETE',
-            url: '/leaderboard/api/deleteGame',
+            url: '/leaderboards/api/deleteGame',
             data: {
               game: game,
             },
             success: function(data) {
-              window.location = "/leaderboard/entries/";
+              window.location = "/leaderboards/entries/";
             },
           });
         }
@@ -185,7 +185,7 @@
         } else {
           $.ajax({
             type: 'POST',
-            url: '/leaderboard/api/createUserScore',
+            url: '/leaderboards/api/createUserScore',
             data: {
               game: game,
               username: $('input.input-username').val(),
@@ -210,7 +210,7 @@
 
         $.ajax({
           type: 'DELETE',
-          url: '/leaderboard/api/deleteUserScore',
+          url: '/leaderboards/api/deleteUserScore',
           data: {
             game: game,
             username: $(this).prev().prev().text(),
