@@ -2,8 +2,7 @@
 
 
 var routes = require('express').Router();
-var models = require('../../models/models');
-
+var db = require('../../models/index');
 
 
 /**
@@ -15,7 +14,7 @@ routes.get('/leaderboards/entries/:game?', function(req, res) {
   var scoreData = [];
 
   // SELECT name FROM games WHERE delete_stamp IS NULL;
-  models.Game.findAll({
+  db.game.findAll({
     attributes: ['name'],
     where: { delete_stamp: null },
   }).then(function(games) {
@@ -36,7 +35,7 @@ routes.get('/leaderboards/entries/:game?', function(req, res) {
     // LEFT JOIN users ON scores.user_id=users.user_id
     // WHERE game_name=BINARY " currGame " AND scores.delete_stamp IS NULL AND games.delete_stamp IS NULL AND users.delete_stamp IS NULL
     // ORDER BY score DESC;
-    return models.Score.findAll({
+    return db.score.findAll({
       attributes: ['id', 'score'],
       where: { delete_stamp: null },
       order: [
@@ -44,12 +43,12 @@ routes.get('/leaderboards/entries/:game?', function(req, res) {
       ],
       include: [
         {
-          model: models.Game,
+          model: db.game,
           attributes: ['name'],
           where: { name: currGame, delete_stamp: null }
         },
         {
-          model: models.User,
+          model: db.user,
           attributes: ['name'],
           where: { delete_stamp: null },
         }

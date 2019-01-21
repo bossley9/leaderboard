@@ -2,7 +2,7 @@
 
 
 var routes = require('express').Router();
-var models = require('../../../models/models');
+var db = require('../../../models/index');
 
 
 
@@ -16,7 +16,7 @@ routes.post('/leaderboards/api/createGame', urlencodedParser, function(req, res)
   if (req.body.game.length > 0) {
 
     // SELECT name FROM games WHERE delete_stamp IS NULL;
-    models.Game.findAll({
+    db.game.findAll({
       attributes: ['name'],
       where: {delete_stamp: null}
     }).then(function(games) {
@@ -25,7 +25,7 @@ routes.post('/leaderboards/api/createGame', urlencodedParser, function(req, res)
       }
 
       // SELECT TOP 1 FROM games WHERE name=BINARY "req.body.game";
-      return models.Game.findOne({
+      return db.game.findOne({
         attributes: ['name'],
         where: { name: req.body.game }
       });
@@ -34,7 +34,7 @@ routes.post('/leaderboards/api/createGame', urlencodedParser, function(req, res)
     .then(function(game) {
       if (!game) {
         // INSERT INTO games (name) VALUES ("req.body.game");
-        return models.Game.create({ name: req.body.game });
+        return db.game.create({ name: req.body.game });
       }
     })
     .then(function(game) {
@@ -66,6 +66,15 @@ routes.post('/leaderboards/api/createGame', urlencodedParser, function(req, res)
  * The entry(s) will still exist in the database for safety precautions.
  */
 routes.delete('/leaderboards/api/deleteGame', urlencodedParser, function(req, res) {
+// TODO
+  // SELECT * FROM games WHERE name=
+  db.game.findAll({
+    where: {name: req.body.game},
+  })
+  .then(function(result) {
+
+  });
+
   // update game delete_stamp
   connection.query('UPDATE games SET delete_stamp=NOW() WHERE game_name=BINARY "' + req.body.game + '"', function(err, result) {
     // delete all associated scores
@@ -77,6 +86,8 @@ routes.delete('/leaderboards/api/deleteGame', urlencodedParser, function(req, re
     });
 
   });
+
+
 
 });
 
