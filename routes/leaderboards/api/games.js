@@ -22,7 +22,7 @@ module.exports = function(db) {
           gameList.push(games[g].dataValues.name);
         }
 
-        // SELECT TOP 1 FROM games WHERE name=BINARY "req.body.game";
+        // SELECT name FROM games WHERE name=BINARY "req.body.game";
         return db.game.findOne({
           attributes: ['name'],
           where: { name: req.body.game }
@@ -46,7 +46,7 @@ module.exports = function(db) {
         res.send(game.name);
 
       })
-      .catch(function(e) { throw e });
+      .catch(function(e) {throw e});
 
     }
 
@@ -64,15 +64,21 @@ module.exports = function(db) {
    * The entry(s) will still exist in the database for safety precautions.
    */
   routes.delete('/deleteGame', urlencodedParser, function(req, res) {
-  // TODO
-    // SELECT * FROM games WHERE name=
-    db.game.findAll({
+
+    // SELECT id, name FROM games WHERE name=BINARY "req.body.game";
+    db.game.findOne({
+      attributes: ['id', 'name'],
       where: {name: req.body.game},
     })
-    .then(function(result) {
-
-    });
-
+    .then(function(game) {
+      // UPDATE games SET delete_stamp=NOW() WHERE game_name=BINARY "req.body.game";
+      return game.update({delete_stamp: Date.now()})
+    })
+    .then(function(game) {
+    //  return db.score.
+    })
+    .catch(function(e) {throw e});
+/*
     // update game delete_stamp
     connection.query('UPDATE games SET delete_stamp=NOW() WHERE game_name=BINARY "' + req.body.game + '"', function(err, result) {
       // delete all associated scores
@@ -86,7 +92,7 @@ module.exports = function(db) {
     });
 
 
-
+*/
   });
 
 
