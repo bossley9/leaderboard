@@ -28,49 +28,47 @@ var dbPromise = new Promise(function(resolve, reject) {
     password: KEYS.password,
   });
 
-  connection.query('CREATE DATABASE IF NOT EXISTS Leaderboard', function (err, result) {
+  connection.query('CREATE DATABASE IF NOT EXISTS ' + KEYS.database, function (err, result) {
     if (err) reject(err);
     else resolve(result);
   });
 
 });
 
-dbPromise.then(function(result) {
+dbPromise.then(function() {
 
-  db = require("./models/index");
+  // initialize models
+  db = require('./models/index');
   return db;
 
-}).then(function(db) {
-  // Game.create({name: "TestNull", delete_stamp: Date.now()})
-  // .then(() => {
-  //   return Game.create({name: "TestValidGame"})
-  // })
-  // .then((game) => {
-  //   User.create({name: "Bob"})
-  //   .then((user) => {
-  //     Score.create({
-  //       score: 123,
-  //       score_user_id: user.id,
-  //       score_game_id: game.id,
-  //     })
-  //   })
-  // })
+// }).then(function(db) {
+//
+//   Game.create({name: "TestNull", delete_stamp: Date.now()})
+//   .then(() => {
+//     return Game.create({name: "TestValidGame"})
+//   })
+//   .then((game) => {
+//     User.create({name: "Bob"})
+//     .then((user) => {
+//       Score.create({
+//         score: 123,
+//         score_user_id: user.id,
+//         score_game_id: game.id,
+//       })
+//     })
+//   })
 
+
+}).then(function(db) {
+
+  // routes
+  require('./routes')(app, db);
+
+}).then(function() {
+
+  // server
+  app.listen(8081, function() {
+    console.log('Server is active at 127.0.0.1:8081.');
+  });
 
 }).catch(function(e) { throw e });
-
-
-
-// routes
-
-
-app.use(require('./routes/leaderboards/entries'));
-app.use(require('./routes/leaderboards/api/games'));
-app.use(require('./routes/leaderboards/api/scores'));
-
-
-
-// server
-app.listen(8081, function() {
-  console.log('Server is active at 127.0.0.1:8081.');
-});
