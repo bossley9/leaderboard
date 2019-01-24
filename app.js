@@ -41,8 +41,6 @@ dbPromise.then(function() {
   require('./models/index')
   .then(function(db) {
 
-    //console.log(db);
-
     // routes
     require('./routes')(app, db);
 
@@ -54,50 +52,5 @@ dbPromise.then(function() {
     });
 
   });
-
-  //return db;
-
-}).then(function(db) {
-
-
-/*
-return db;
-}).then(function(db) {
-
-  // create game
-  db.game.create({ name: "testAssociation" })
-  .then((game) => {
-
-    // create user
-    db.user.create({name: "testValidUser"})
-    .then((user) => {
-
-      // create score
-      db.score.create({
-        score: 614,
-      }).then((score) => {
-        user.addScore(score)
-        .then(() => {
-          return score.setUser(user);
-        }).then(() => {
-          return game.addScore(score);
-        }).then((result) => {
-          return result.getScores()
-        }).then((scores) => {
-
-          return scores[0].getUser();
-
-        }).then((user) => {
-          //console.log(user);
-        });
-      });
-    })
-    .catch((e) => {throw e});
-
-  });
-
-*/
-}).then(function() {
-
 
 }).catch(function(e) { throw e });

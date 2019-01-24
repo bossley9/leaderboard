@@ -25,3 +25,16 @@ td.entry-edit, .entry-delete {
   cursor: pointer;
   display: table-cell !important;
 }
+
+.credits {
+  text-align: left;
+  margin-top: 10%;
+}
+
+.credits p {
+  color: #999;
+}
+
+.credits a:hover {
+  text-decoration: underline;
+}

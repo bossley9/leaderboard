@@ -55,8 +55,8 @@ module.exports = new Promise(function(resolve, reject) {
   db.Sequelize = Sequelize;
 
   // TODO - switch on production
-  //db.sequelize.sync()
-  db.sequelize.sync({force: true})
+  db.sequelize.sync()
+  //db.sequelize.sync({force: true})
   .then(function() {
     resolve(db);
   })
