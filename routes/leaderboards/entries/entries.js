@@ -20,6 +20,60 @@ module.exports = function(db) {
       var hasGame = false;
 
       for (var g in games) {
+        if (games[g].dataValues.name == currGame) hasGame = true;
+        gameList.push(games[g].dataValues.name);
+      }
+
+      if (!hasGame) currGame = "";
+      if (!hasGame && games.length > 0) currGame = games[0].dataValues.name;
+
+      // TODO - query
+      return db.game.findOne({
+        where: ({ delete_stamp: null, name: currGame })
+      });
+
+    }).then(function(game) {
+
+      if (game) {
+
+          game.getScores()
+          .then(function(scores) {
+            for (var s in scores) {
+              scoreData.push({
+                user_name: scores[s].getUser(),
+                score: scores[s].dataValues.score
+              })
+            }
+          });
+      }
+
+
+    }).then(function() {
+
+      res.render('index', {
+        data: scoreData,
+        gameList: gameList,
+        currGame: currGame,
+      });
+
+    })
+
+    .catch(function(e) {throw e});
+
+    /*
+    var currGame = req.params.game;
+    var gameList = [];
+    var scoreData = [];
+
+    // SELECT name FROM games WHERE delete_stamp IS NULL;
+    db.game.findAll({
+      attributes: ['name'],
+      where: { delete_stamp: null },
+    }).then(function(games) {
+
+      var hasGame = false;
+
+      for (var g in games) {
           if (games[g].dataValues.name == currGame) hasGame = true;
           gameList.push(games[g].dataValues.name);
       }
@@ -70,11 +124,12 @@ module.exports = function(db) {
 
 
     })
-    .catch(function(e) { throw e });
 
+    .catch(function(e) { throw e });
+    */
   });
 
 
   return entries;
-  
+
 }

@@ -1,13 +1,19 @@
 
 
-// CREATE TABLE IF NOT EXISTS users (
-//  user_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-//  user_name VARCHAR(20) NOT NULL UNIQUE,
-//  delete_stamp DATETIME DEFAULT NULL
-// )
+
+//  CREATE TABLE IF NOT EXISTS users (
+//    id INTEGER NOT NULL auto_increment,
+//    name VARCHAR(255) BINARY UNIQUE,
+//    delete_stamp DATETIME,
+//    createdAt DATETIME NOT NULL,
+//    updatedAt DATETIME NOT NULL,
+//    PRIMARY KEY (`id`)
+//  );
+
+
 
 module.exports = (sequelize, DataTypes) => {
-  return sequelize.define('user', {
+  const user = sequelize.define('user', {
     name: {
       type: DataTypes.STRING.BINARY,
       unique: true,
@@ -17,4 +23,11 @@ module.exports = (sequelize, DataTypes) => {
       default: null,
     },
   });
+
+  user.associate = (models) => {
+    // each user will have multiple scores (across games)
+    user.hasMany(models.score, {as: 'scores'});
+  }
+
+  return user;
 }

@@ -1,52 +1,61 @@
 
 "use strict";
 
-var fs = require('fs');
-var path = require('path');
-var Sequelize = require("sequelize");
+module.exports = new Promise(function(resolve, reject) {
 
-// client-sensitive information stored here
-var KEYS = require('../KEYS');
+  var fs = require('fs');
+  var path = require('path');
+  var Sequelize = require("sequelize");
 
-const sequelize = new Sequelize(KEYS.database, KEYS.username, KEYS.password, {
-  host: KEYS.host,
-  dialect: 'mysql',
+  // client-sensitive information stored here
+  var KEYS = require('../KEYS');
 
-  pool: {
-    max: 5,
-    min: 0,
-    idle: 10000
-  },
+  const sequelize = new Sequelize(KEYS.database, KEYS.username, KEYS.password, {
+    host: KEYS.host,
+    dialect: 'mysql',
 
-  // TEMP - suppresses String-based operator warning
-  operatorsAliases: false
+    pool: {
+      max: 5,
+      min: 0,
+      idle: 10000
+    },
+
+    // TEMP - suppresses String-based operator warning
+    operatorsAliases: false
+  });
+
+
+  var db = {};
+
+
+  fs.readdirSync(__dirname).filter(function(file) {
+
+    return (file.indexOf(".") !== 0) && (file !== "index.js");
+
+  }).forEach(function(file) {
+
+    var model = sequelize.import(path.join(__dirname, file));
+    db[model.name] = model;
+
+  });
+
+
+  Object.keys(db).forEach(function(modelName) {
+    if ("associate" in db[modelName]) {
+      db[modelName].associate(db);
+    }
+  });
+
+
+  db.sequelize = sequelize;
+  db.Sequelize = Sequelize;
+
+  // TODO - switch on production
+  //db.sequelize.sync()
+  db.sequelize.sync({force: true})
+  .then(function() {
+    resolve(db);
+  })
+  .catch(function(e) {throw e});
+
 });
-
-
-var db = {};
-
-
-fs.readdirSync(__dirname).filter(function(file) {
-
-  return (file.indexOf(".") !== 0) && (file !== "index.js");
-
-}).forEach(function(file) {
-
-  var model = sequelize.import(path.join(__dirname, file));
-  db[model.name] = model;
-
-});
-
-
-Object.keys(db).forEach(function(modelName) {
-  if ("associate" in db[modelName]) {
-    db[modelName].associate(db);
-  }
-});
-
-
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-db.sequelize.sync();
-
-module.exports = db;

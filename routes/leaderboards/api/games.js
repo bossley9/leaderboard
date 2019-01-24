@@ -9,6 +9,51 @@ module.exports = function(db) {
    */
   routes.post('/createGame', urlencodedParser, function(req, res) {
 
+//    var gameList = [];
+
+    if (req.body.game.length > 0) {
+
+      // TODO query
+      db.game.findAll({
+        where: {delete_stamp: null}
+      }).then(function(games) {
+
+        // for (var g in games) {
+        //   gameList.push(games[g].dataValues.name);
+        // }
+        //
+        // if (gameList.indexOf(req.body.game) < 0) gameList.push(req.body.game);
+
+        return db.game.findOne({
+          attributes: ['id', 'name'],
+          where: { name: req.body.game }
+        });
+
+      }).then(function(game) {
+
+        if (!game) return db.game.create({name: req.body.game});
+        else return game;
+
+      }).then(function(game) {
+
+        return game.getScores()
+
+      }).then(function(scores) {
+
+        for (var s in scores) {
+          scoreData.push({
+            user_name: scores[s].getUser(),
+            score: scores[s].dataValues.score
+          })
+        }
+
+      }).then(function() {
+
+        res.send(req.body.game);
+
+      }).catch(function(e) {throw e});
+    }
+/*
     var gameList = [];
 
     if (req.body.game.length > 0) {
@@ -24,16 +69,15 @@ module.exports = function(db) {
 
         // SELECT name FROM games WHERE name=BINARY "req.body.game";
         return db.game.findOne({
-          attributes: ['name'],
+          attributes: ['id', 'name'],
           where: { name: req.body.game }
         });
 
       })
       .then(function(game) {
-        if (!game) {
-          // INSERT INTO games (name) VALUES ("req.body.game");
-          return db.game.create({ name: req.body.game });
-        }
+        // INSERT INTO games (name) VALUES ("req.body.game");
+        if (!game) return db.game.create({ name: req.body.game });
+        else return game;
       })
       .then(function(game) {
 
@@ -49,7 +93,7 @@ module.exports = function(db) {
       .catch(function(e) {throw e});
 
     }
-
+  */
   });
 
 
@@ -69,12 +113,14 @@ module.exports = function(db) {
     db.game.findOne({
       attributes: ['id', 'name'],
       where: {name: req.body.game},
-    })
-    .then(function(game) {
+    }).then(function(game) {
+
       // UPDATE games SET delete_stamp=NOW() WHERE game_name=BINARY "req.body.game";
       return game.update({delete_stamp: Date.now()})
+
     })
     .then(function(game) {
+
     //  return db.score.
     })
     .catch(function(e) {throw e});

@@ -1,14 +1,20 @@
 
 
-// CREATE TABLE IF NOT EXISTS scores (
-//  score_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-//  user_id INT UNSIGNED NOT NULL,
-//  FOREIGN KEY (user_id) REFERENCES users(user_id),
-//  game_id INT UNSIGNED NOT NULL,
-//  FOREIGN KEY (game_id) REFERENCES games(game_id),
-//  score INT UNSIGNED NOT NULL DEFAULT 0,
-//  delete_stamp DATETIME DEFAULT NULL
-// )
+
+//  CREATE TABLE IF NOT EXISTS scores (
+//    id INTEGER NOT NULL auto_increment,
+//    score INTEGER UNSIGNED,
+//    delete_stamp DATETIME,
+//    createdAt DATETIME NOT NULL,
+//    updatedAt DATETIME NOT NULL,
+//    gameId INTEGER,
+//    userId INTEGER,
+//    PRIMARY KEY (id),
+//    FOREIGN KEY (gameId) REFERENCES games (id) ON DELETE SET NULL ON UPDATE CASCADE,
+//    FOREIGN KEY (userId) REFERENCES users (id) ON DELETE SET NULL ON UPDATE CASCADE
+//  );
+
+
 
 module.exports = (sequelize, DataTypes) => {
   const score = sequelize.define('score', {
@@ -22,18 +28,11 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   score.associate = (models) => {
-    // a single game contains many different scores
-    score.belongsTo(models.game, {foreignKey: 'score_game_id'});
-    // each user will have multiple scores across games
-    score.belongsTo(models.user, {foreignKey: 'score_user_id'});
+    // each score has one game
+    score.belongsTo(models.game);
+    // each score has one user
+    score.belongsTo(models.user);
   }
 
   return score;
 }
-
-
-
-// a single game contains many different scores
-//Score.belongsTo(Game, {foreignKey: 'score_game_id'});
-// each user will have multiple scores across games
-//Score.belongsTo(User, {foreignKey: 'score_user_id'});

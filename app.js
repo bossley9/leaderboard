@@ -38,37 +38,66 @@ var dbPromise = new Promise(function(resolve, reject) {
 dbPromise.then(function() {
 
   // initialize models
-  db = require('./models/index');
-  return db;
+  require('./models/index')
+  .then(function(db) {
 
-// }).then(function(db) {
-//
-//   Game.create({name: "TestNull", delete_stamp: Date.now()})
-//   .then(() => {
-//     return Game.create({name: "TestValidGame"})
-//   })
-//   .then((game) => {
-//     User.create({name: "Bob"})
-//     .then((user) => {
-//       Score.create({
-//         score: 123,
-//         score_user_id: user.id,
-//         score_game_id: game.id,
-//       })
-//     })
-//   })
+    //console.log(db);
 
+    // routes
+    require('./routes')(app, db);
+
+  }).then(function() {
+
+    // server
+    app.listen(8081, function() {
+      console.log('Server is active at 127.0.0.1:8081.');
+    });
+
+  });
+
+  //return db;
 
 }).then(function(db) {
 
-  // routes
-  require('./routes')(app, db);
 
+/*
+return db;
+}).then(function(db) {
+
+  // create game
+  db.game.create({ name: "testAssociation" })
+  .then((game) => {
+
+    // create user
+    db.user.create({name: "testValidUser"})
+    .then((user) => {
+
+      // create score
+      db.score.create({
+        score: 614,
+      }).then((score) => {
+        user.addScore(score)
+        .then(() => {
+          return score.setUser(user);
+        }).then(() => {
+          return game.addScore(score);
+        }).then((result) => {
+          return result.getScores()
+        }).then((scores) => {
+
+          return scores[0].getUser();
+
+        }).then((user) => {
+          //console.log(user);
+        });
+      });
+    })
+    .catch((e) => {throw e});
+
+  });
+
+*/
 }).then(function() {
 
-  // server
-  app.listen(8081, function() {
-    console.log('Server is active at 127.0.0.1:8081.');
-  });
 
 }).catch(function(e) { throw e });

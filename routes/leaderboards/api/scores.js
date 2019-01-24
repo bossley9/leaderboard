@@ -16,11 +16,11 @@ module.exports = function(db) {
       // SELECT id, name FROM users WHERE name=BINARY "newUser";
       db.user.findOne({
         attributes: ['id', 'name'],
-        where: { name: newUser },
+        where: { name: newUser.toUpperCase() },
       }).then(function(user) {
 
         // INSERT INTO users (name) VALUES ("newUser");
-        if (!user) return db.user.create({ name: newUser });
+        if (!user) return db.user.create({ name: newUser.toUpperCase() });
         else return user;
 
       }).then(function(user) {
@@ -45,10 +45,8 @@ module.exports = function(db) {
 
         }).then(function(score) {
 
-          //console.log(score.name);
-
-          //res.send(score.name);
           res.send(true);
+
         });
 
       })
