@@ -1,5 +1,6 @@
 
 
+
 module.exports = function(db) {
 
   var routes = require('express').Router();
@@ -9,91 +10,35 @@ module.exports = function(db) {
    */
   routes.post('/createGame', urlencodedParser, function(req, res) {
 
-//    var gameList = [];
-
     if (req.body.game.length > 0) {
 
-      // TODO query
-      db.game.findAll({
-        where: {delete_stamp: null}
-      }).then(function(games) {
-
-        // for (var g in games) {
-        //   gameList.push(games[g].dataValues.name);
-        // }
-        //
-        // if (gameList.indexOf(req.body.game) < 0) gameList.push(req.body.game);
-
-        return db.game.findOne({
-          attributes: ['id', 'name'],
-          where: { name: req.body.game }
-        });
-
+      // SELECT id, name FROM games WHERE name = "req.body.game";
+      db.game.findOne({
+        attributes: ['id', 'name'],
+        where: { name: req.body.game },
       }).then(function(game) {
 
+        // INSERT IGNORE INTO games (name) VALUES ("req.body.game");
         if (!game) return db.game.create({name: req.body.game});
         else return game;
 
       }).then(function(game) {
 
-        return game.getScores()
-
-      }).then(function(scores) {
-
-        for (var s in scores) {
-          scoreData.push({
-            user_name: scores[s].getUser(),
-            score: scores[s].dataValues.score
-          })
-        }
-
-      }).then(function() {
-
-        res.send(req.body.game);
-
-      }).catch(function(e) {throw e});
-    }
-/*
-    var gameList = [];
-
-    if (req.body.game.length > 0) {
-
-      // SELECT name FROM games WHERE delete_stamp IS NULL;
-      db.game.findAll({
-        attributes: ['name'],
-        where: {delete_stamp: null}
-      }).then(function(games) {
-        for (var g in games) {
-          gameList.push(games[g].dataValues.name);
-        }
-
-        // SELECT name FROM games WHERE name=BINARY "req.body.game";
-        return db.game.findOne({
-          attributes: ['id', 'name'],
-          where: { name: req.body.game }
-        });
-
-      })
-      .then(function(game) {
-        // INSERT INTO games (name) VALUES ("req.body.game");
-        if (!game) return db.game.create({ name: req.body.game });
-        else return game;
-      })
-      .then(function(game) {
-
-        // UPDATE games SET delete_stamp=NULL WHERE game_name=BINARY "req.body.game";
+        // UPDATE games WHERE name = "req.body.game" SET delete_stamp=NULL;
         return game.update({ delete_stamp: null });
 
-      })
-      .then(function(game) {
+      }).then(function(game) {
 
-        res.send(game.name);
+        // we don't do anything with the callback here,
+        // this is only to verify that the game has been
+        // created if it didn't exist. Then the view will
+        // render the page with the game as the relative url.
+        res.send(req.body.game);
 
-      })
-      .catch(function(e) {throw e});
+      }).catch(function(e) { throw e });
 
     }
-  */
+
   });
 
 
@@ -109,38 +54,68 @@ module.exports = function(db) {
    */
   routes.delete('/deleteGame', urlencodedParser, function(req, res) {
 
-    // SELECT id, name FROM games WHERE name=BINARY "req.body.game";
+    // SELECT id, name FROM games WHERE name = "req.body.game";
     db.game.findOne({
       attributes: ['id', 'name'],
-      where: {name: req.body.game},
+      where: { name: req.body.game }
     }).then(function(game) {
 
-      // UPDATE games SET delete_stamp=NOW() WHERE game_name=BINARY "req.body.game";
-      return game.update({delete_stamp: Date.now()})
+      // sanity check -
+      // game must exist in order for
+      // the user to be able to delete it
+      if (game) return game;
 
-    })
-    .then(function(game) {
+    }).then(function(game) {
 
-    //  return db.score.
-    })
-    .catch(function(e) {throw e});
-/*
-    // update game delete_stamp
-    connection.query('UPDATE games SET delete_stamp=NOW() WHERE game_name=BINARY "' + req.body.game + '"', function(err, result) {
-      // delete all associated scores
-      connection.query('UPDATE scores LEFT JOIN games ON scores.game_id=games.game_id SET scores.delete_stamp=NOW() WHERE game_name=BINARY "' + req.body.game + '" AND scores.delete_stamp IS NULL', function(err, result) {
-        // TODO delete any unused users
+      // UPDATE games WHERE name = "req.body.game" SET delete_stamp = NOW();
+      return game.update({ delete_stamp: Date.now() });
 
-        res.send("success");
+    }).then(function(game) {
+
+      return game.getScores();
+
+    }).then(function(scores) {
+
+      return db.sequelize.Promise.each(scores, function(score) {
+
+        // UPDATE scores WHERE gameId = game.id SET delete_stamp = NOW();
+        return score.update({ delete_stamp: Date.now() })
+        .then(function(score) {
+
+          // SELECT * FROM users WHERE id = score.userId;
+          return score.getUser();
+
+        }).then(function(user) {
+
+          // SELECT * FROM scores WHERE userId = user.id AND delete_stamp = NULL;
+          return user.getScores({
+            where: { delete_stamp: null }
+          }).then(function(scores) {
+
+            if (scores.length == 0) {
+
+              // UPDATE users WHERE id = user.id SET delete_stamp = NOW();
+              return user.update({ delete_stamp: Date.now() });
+
+            }
+            else return user;
+
+          });
+
+        });
 
       });
 
-    });
+    }).then(function(promise) {
 
+      // callback is only used to verify that
+      // scores and users have been deleted if
+      // needed.
+      res.send(true);
 
-*/
+    }).catch(function(e) { throw e });
+
   });
-
 
   return routes;
 }

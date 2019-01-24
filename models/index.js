@@ -1,5 +1,9 @@
 
+
+
 "use strict";
+
+
 
 module.exports = new Promise(function(resolve, reject) {
 
@@ -56,6 +60,6 @@ module.exports = new Promise(function(resolve, reject) {
   .then(function() {
     resolve(db);
   })
-  .catch(function(e) {throw e});
+  .catch(function(e) { throw e });
 
 });

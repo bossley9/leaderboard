@@ -1,6 +1,8 @@
 
 
+
 var fs = require('fs');
+
 
 
 function addRoutes(dir, app, db) {
@@ -10,13 +12,13 @@ function addRoutes(dir, app, db) {
       return (file !== "index.js");
 
   }).forEach(function (file) {
-    
+
     // find all files recursively
     if(fs.lstatSync(dir + '/' + file).isDirectory()) {
       addRoutes(dir + '/' + file, app, db);
     } else {
 
-      // use route
+      // use routes folder
       var folder = "routes";
       var newDir = dir.slice(dir.indexOf(folder) + (folder).length);
 
@@ -27,6 +29,7 @@ function addRoutes(dir, app, db) {
   });
 
 }
+
 
 
 module.exports = function (app, db) {

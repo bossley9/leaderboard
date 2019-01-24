@@ -1,5 +1,6 @@
 
 
+
 module.exports = function(db) {
 
   var routes = require('express').Router();
@@ -8,49 +9,66 @@ module.exports = function(db) {
    * POST request that handles the creation of a new user (if the user does not already exist) and a score.
    */
   routes.post('/createUserScore', urlencodedParser, function(req, res) {
+
     if (req.body.username.length > 0 && req.body.score >= 0 ) {
       var newGame = req.body.game;
       var newUser = req.body.username;
       var newScore = req.body.score;
 
-      // SELECT id, name FROM users WHERE name=BINARY "newUser";
+      // SELECT id, name FROM users WHERE name = "newUser";
       db.user.findOne({
         attributes: ['id', 'name'],
-        where: { name: newUser.toUpperCase() },
+        where: { name: newUser }
       }).then(function(user) {
 
-        // INSERT INTO users (name) VALUES ("newUser");
-        if (!user) return db.user.create({ name: newUser.toUpperCase() });
+        // INSERT IGNORE INTO users (name) VALUES ("newUser");
+        if (!user) return db.user.create({ name: newUser });
         else return user;
 
       }).then(function(user) {
 
-        // UPDATE users SET delete_stamp=NULL WHERE name=BINARY "newUser";
+        // UPDATE users WHERE name = "newUser" SET delete_stamp = NULL;
         return user.update({ delete_stamp: null });
 
       }).then(function(user) {
 
-        // SELECT id, name FROM games WHERE name=BINARY "newGame";
+        // SELECT id, name FROM games WHERE name = "newGame";
         db.game.findOne({
           attributes: ['id', 'name'],
-          where: { name: newGame }
+          where: { name: newGame },
         }).then(function(game) {
 
-          // INSERT INTO scores (score, score_user_id, score_game_id) VALUES (newScore, user.id, game.id);
-          return db.score.create({
-            score: newScore,
-            score_user_id: user.id,
-            score_game_id: game.id,
-          })
+          // sanity check -
+          // if this route is being called,
+          // there must be a valid existing game
+          if (game) return game;
 
-        }).then(function(score) {
+        }).then(function(game) {
 
-          res.send(true);
+          // INSERT IGNORE INTO scores (score) VALUES ("newScore");
+          db.score.create({ score: newScore })
+          .then(function(score) {
+
+            // UPDATE scores WHERE score = "newScore" SET gameId = game.id;
+            game.addScore(score)
+            .then(function() {
+
+              // UPDATE scores WHERE score = "newScore" SET userId = user.id;
+              return user.addScore(score);
+
+            }).then(function() {
+
+              res.send(true);
+
+            });
+
+          });
 
         });
 
       })
-      .catch(function(e) {throw e});
+
+      .catch(function(e) { throw e });
 
     }
 
@@ -65,24 +83,53 @@ module.exports = function(db) {
    * The entry(s) will still exist in the database for safety precautions.
    */
   routes.delete('/deleteUserScore', urlencodedParser, function(req, res) {
-    // find all matching entries
-    connection.query(
-    'SELECT * FROM scores ' +
-    'LEFT JOIN games ON scores.game_id=games.game_id ' +
-    'LEFT JOIN users ON scores.user_id=users.user_id ' +
-    'WHERE game_name=BINARY "' + req.body.game + '" AND user_name=BINARY "' + req.body.username + '" AND score=BINARY "' + req.body.score + '" AND scores.delete_stamp IS NULL',
-    function(err, result) {
-      // set the first score's delete_stamp field to the current time
-      connection.query('UPDATE scores SET delete_stamp=NOW() WHERE score_id=' + result[0].score_id, function(err, result) {
-        // TODO delete any unused users
 
-        res.send("success");
+    // SELECT * FROM scores WHERE name = "req.body.username";
+    db.score.findOne({
+      where: { score: req.body.score }
+    }).then(function(score) {
+
+      // sanity check -
+      // this score should exist because the user
+      // clicked on it.
+      if (score) return score;
+
+    }).then(function(score) {
+
+      // UPDATE scores WHERE score = "req.body.score" SET delete_stamp = NOW();
+      return score.update({ delete_stamp: Date.now() });
+
+    }).then(function(score) {
+
+      // SELECT * FROM users WHERE id = score.userId;
+      return score.getUser();
+
+    }).then(function(user) {
+
+      // SELECT * FROM scores WHERE userId = user.id AND delete_stamp = NULL;
+      user.getScores({
+        where: { delete_stamp: null }
+      }).then(function(scores) {
+
+        if (scores.length == 0) {
+
+          // UPDATE users WHERE id = user.id SET delete_stamp = NOW();
+          return user.update({ delete_stamp: Date.now() });
+
+        }
+        else return user;
+
+      }).then(function(user) {
+
+        // callback is only used to verify that the user
+        // has been deleted if needed.
+        res.send(true);
+
       });
 
-    });
+    }).catch(function(e) { throw e });
 
   });
-
 
   return routes;
 

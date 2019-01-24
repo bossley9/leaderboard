@@ -96,6 +96,9 @@
       </table>
 
     </section>
+    <section style="text-align: left; margin-top: 10%">
+      <p>test here.</p>
+    </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -164,7 +167,7 @@
               game: game,
             },
             success: function(data) {
-              window.location = "/leaderboards/entries/";
+              if (data) window.location = "/leaderboards/entries/";
             },
           });
         }
@@ -217,7 +220,7 @@
             score: $(this).prev().text(),
           },
           success: function(data) {
-            location.reload();
+            if (data) location.reload();
           },
         });
         return false;
