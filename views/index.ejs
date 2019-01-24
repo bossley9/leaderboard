@@ -3,7 +3,13 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8" />
-    <title>Leaderboards</title>
+    <title>
+      <% if (currGame == "") { %>
+        Leaderboards
+      <% } else { %>
+        Leaderboards: <%= currGame %>
+      <% } %>
+    </title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" type="text/css" href="/css/base.css" />

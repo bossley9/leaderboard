@@ -43,8 +43,6 @@ module.exports = function(db) {
 
 
 
-  // TODO - also make sure that scores and unused users are stamped
-
   /**
    * DELETE request that handles the client-side "deletion" of a game. This will
    * also delete any scores associated with the game, and finally will delete any

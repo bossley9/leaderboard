@@ -43,6 +43,7 @@ module.exports = function(db) {
           include: [
             { model: db.user, attributes: ['name'] }
           ],
+          order: [ ['score', 'DESC'], [{ model: db.user }, 'name', 'ASC'] ],
         }).then(function(scores) {
 
           var scoreData = [];
