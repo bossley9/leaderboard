@@ -1,14 +1,33 @@
 
 
 
-module.exports = function(db) {
+module.exports.init = function(db) {
 
-  var routes = require('express').Router();
+  var games = require('express').Router();
 
   /**
    * POST request that handles the creation of a new game (if it does not already exist).
    */
-  routes.post('/createGame', urlencodedParser, function(req, res) {
+  games.post('/createGame', urlencodedParser, this.createGame(db));
+
+  /**
+   * DELETE request that handles the client-side "deletion" of a game. This will
+   * also delete any scores associated with the game, and finally will delete any
+   * unused users.
+   *
+   * The entry(s) will still exist in the database for safety precautions.
+   */
+  games.delete('/deleteGame', urlencodedParser, this.deleteGame(db));
+
+  return games;
+
+}
+
+
+
+module.exports.createGame = function(db) {
+
+  return function(req, res) {
 
     if (req.body.game.length > 0) {
 
@@ -39,18 +58,15 @@ module.exports = function(db) {
 
     }
 
-  });
+  };
+
+}
 
 
 
-  /**
-   * DELETE request that handles the client-side "deletion" of a game. This will
-   * also delete any scores associated with the game, and finally will delete any
-   * unused users.
-   *
-   * The entry(s) will still exist in the database for safety precautions.
-   */
-  routes.delete('/deleteGame', urlencodedParser, function(req, res) {
+module.exports.deleteGame = function(db) {
+
+  return function(req, res) {
 
     // SELECT id, name FROM games WHERE name = "req.body.game";
     db.game.findOne({
@@ -113,7 +129,6 @@ module.exports = function(db) {
 
     }).catch(function(e) { throw e });
 
-  });
+  };
 
-  return routes;
 }

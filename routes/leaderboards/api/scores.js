@@ -1,14 +1,32 @@
 
 
 
-module.exports = function(db) {
+module.exports.init = function(db) {
 
-  var routes = require('express').Router();
+  var scores = require('express').Router();
 
   /**
    * POST request that handles the creation of a new user (if the user does not already exist) and a score.
    */
-  routes.post('/createUserScore', urlencodedParser, function(req, res) {
+  scores.post('/createUserScore', urlencodedParser, this.createUserScore(db));
+
+  /**
+   * DELETE request that handles the client-side "deletion" of a score. This will
+   * also delete any unused users.
+   *
+   * The entry(s) will still exist in the database for safety precautions.
+   */
+  scores.delete('/deleteUserScore', urlencodedParser, this.deleteUserScore(db));
+
+  return scores;
+
+}
+
+
+
+module.exports.createUserScore = function(db) {
+
+  return function(req, res) {
 
     if (req.body.username.length > 0 && req.body.score >= 0 ) {
       var newGame = req.body.game;
@@ -72,17 +90,15 @@ module.exports = function(db) {
 
     }
 
-  });
+  };
+
+}
 
 
 
-  /**
-   * DELETE request that handles the client-side "deletion" of a score. This will
-   * also delete any unused users.
-   *
-   * The entry(s) will still exist in the database for safety precautions.
-   */
-  routes.delete('/deleteUserScore', urlencodedParser, function(req, res) {
+module.exports.deleteUserScore = function(db) {
+
+  return function(req, res) {
 
     // SELECT * FROM scores WHERE name = "req.body.username";
     db.score.findOne({
@@ -129,8 +145,6 @@ module.exports = function(db) {
 
     }).catch(function(e) { throw e });
 
-  });
-
-  return routes;
+  };
 
 }

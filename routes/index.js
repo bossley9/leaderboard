@@ -22,7 +22,7 @@ function addRoutes(dir, app, db) {
       var folder = "routes";
       var newDir = dir.slice(dir.indexOf(folder) + (folder).length);
 
-      app.use(newDir, require(dir + "/" + file)(db));
+      app.use(newDir, require(dir + "/" + file).init(db));
 
     }
 

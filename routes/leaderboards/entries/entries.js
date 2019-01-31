@@ -1,14 +1,25 @@
 
 
 
-module.exports = function(db) {
+module.exports.init = function(db) {
 
   var entries = require('express').Router();
 
   /**
    * GET request involving the game as the parameter.
    */
-  entries.get('/:game?', function(req, res) {
+  entries.get('/:game?', this.leaderboardEntries(db));
+
+  return entries;
+
+}
+
+
+
+module.exports.leaderboardEntries = function(db) {
+
+  return function(req, res) {
+
     var currGame = req.params.game;
     var gameList = [];
 
@@ -48,6 +59,8 @@ module.exports = function(db) {
 
           var scoreData = [];
 
+          console.log("DATA PUSH");
+
           for (var s in scores) {
             scoreData.push({
               user_name: scores[s].dataValues.user.name,
@@ -72,9 +85,6 @@ module.exports = function(db) {
 
     }).catch(function(e) { throw e });
 
-  });
-
-
-  return entries;
+  };
 
 }

@@ -83,7 +83,7 @@
               <td>
                 <div class="input-field">
                   <!--must include: no spaces, length 3 to 10 characters-->
-                  <input class="input-username" autocomplete="off" type="text" required name="username" pattern="[^\s]+" minlength="3" maxlength="20" title="must contain no spaces" />
+                  <input class="input-username" autocomplete="off" type="text" required name="username" pattern="[^\s]+" maxlength="20" title="must contain no spaces" />
                   <label for="username">username</label>
                 </div>
               </td>
@@ -111,6 +111,8 @@
 
     <script>
 
+      const errorClasses = "blue lighten-2";
+
       // -----------------------------------------------------------------------
       // Materialize
       // -----------------------------------------------------------------------
@@ -136,9 +138,9 @@
       $('form#game').on('submit', function() {
         var game = $('input.input-game').val();
         if (game.length > 40) {
-          M.toast({html: 'game name can only be a max of 40 characters', classes: "red lighten-2"});
+          M.toast({html: 'game name can only be a max of 40 characters', classes: errorClasses});
         } else if (game.length == 0) {
-          M.toast({html: 'game name field cannot be empty', classes: "red lighten-2"});
+          M.toast({html: 'game name field cannot be empty', classes: errorClasses});
         } else {
           $.ajax({
             type: 'POST',
@@ -164,7 +166,8 @@
         var game = gSelect.options[gSelect.selectedIndex].text;
 
         if (gSelect.firstElementChild.dataset.invalid == "true") {
-          M.toast({html: 'please first create a valid game', classes: "red lighten-2"});
+          M.toast({html: 'please first create a valid game', classes: errorClasses});
+
         } else {
           $.ajax({
             type: 'DELETE',
@@ -188,17 +191,22 @@
       $('form#user').on('submit', function() {
         var gSelect = document.getElementById("game-select");
         var game = gSelect.options[gSelect.selectedIndex].text;
+        var username = $('input.input-username').val();
+        var score = $('input.input-score').val();
 
         if (gSelect.firstElementChild.dataset.invalid == "true") {
-          M.toast({html: 'please first create a valid game', classes: "red lighten-2"});
+          M.toast({html: 'please first create a valid game', classes: errorClasses});
+        } else if (username.length < 3) {
+          M.toast({html: 'username must be at least 3 characters in length', classes: errorClasses});
+
         } else {
           $.ajax({
             type: 'POST',
             url: '/leaderboards/api/createUserScore',
             data: {
               game: game,
-              username: $('input.input-username').val(),
-              score: $('input.input-score').val(),
+              username: username,
+              score: score,
             },
             success: function(data) {
               location.reload();
