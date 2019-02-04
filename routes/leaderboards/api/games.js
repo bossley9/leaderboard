@@ -27,7 +27,7 @@ module.exports.init = function(db) {
 
 module.exports.createGame = function(db) {
 
-  return function(req, res) {
+  return function(req, res, next) {
 
     if (req.body.game.length > 0) {
 
@@ -48,11 +48,20 @@ module.exports.createGame = function(db) {
 
       }).then(function(game) {
 
+        var data = req.body.game;
+
         // we don't do anything with the callback here,
         // this is only to verify that the game has been
         // created if it didn't exist. Then the view will
         // render the page with the game as the relative url.
-        res.send(req.body.game);
+        res.send(data);
+
+        return data;
+
+      }).then(function(data) {
+
+        // callback
+        next(data);
 
       }).catch(function(e) { throw e });
 
@@ -66,7 +75,7 @@ module.exports.createGame = function(db) {
 
 module.exports.deleteGame = function(db) {
 
-  return function(req, res) {
+  return function(req, res, next) {
 
     // SELECT id, name FROM games WHERE name = "req.body.game";
     db.game.findOne({
@@ -122,10 +131,18 @@ module.exports.deleteGame = function(db) {
 
     }).then(function(promise) {
 
+      var val = true;
       // callback is only used to verify that
       // scores and users have been deleted if
       // needed.
-      res.send(true);
+      res.send(val);
+
+      return val;
+
+    }).then(function(data) {
+
+      // callback
+      next(data);
 
     }).catch(function(e) { throw e });
 

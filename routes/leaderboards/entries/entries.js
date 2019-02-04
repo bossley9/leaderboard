@@ -18,7 +18,7 @@ module.exports.init = function(db) {
 
 module.exports.leaderboardEntries = function(db) {
 
-  return function(req, res) {
+  return function(req, res, next) {
 
     var currGame = req.params.game;
     var gameList = [];
@@ -59,8 +59,6 @@ module.exports.leaderboardEntries = function(db) {
 
           var scoreData = [];
 
-          console.log("DATA PUSH");
-
           for (var s in scores) {
             scoreData.push({
               user_name: scores[s].dataValues.user.name,
@@ -76,12 +74,21 @@ module.exports.leaderboardEntries = function(db) {
 
     }).then(function(scoreData) {
 
-      // render
-      res.render('index', {
+      var obj = {
         data: scoreData,
         gameList: gameList,
         currGame: currGame,
-      });
+      };
+
+      // render
+      res.render('index', obj);
+
+      return obj;
+
+    }).then(function(data) {
+
+      // callback
+      next(data);
 
     }).catch(function(e) { throw e });
 

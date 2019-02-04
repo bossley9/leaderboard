@@ -26,7 +26,7 @@ module.exports.init = function(db) {
 
 module.exports.createUserScore = function(db) {
 
-  return function(req, res) {
+  return function(req, res, next) {
 
     if (req.body.username.length > 0 && req.body.score >= 0 ) {
       var newGame = req.body.game;
@@ -76,7 +76,16 @@ module.exports.createUserScore = function(db) {
 
             }).then(function() {
 
-              res.send(true);
+              var val = true;
+
+              res.send(val);
+
+              return val;
+
+            }).then(function(data) {
+
+              // callback
+              next(data);
 
             });
 
@@ -98,7 +107,7 @@ module.exports.createUserScore = function(db) {
 
 module.exports.deleteUserScore = function(db) {
 
-  return function(req, res) {
+  return function(req, res, next) {
 
     // SELECT * FROM scores WHERE name = "req.body.username";
     db.score.findOne({
@@ -137,9 +146,18 @@ module.exports.deleteUserScore = function(db) {
 
       }).then(function(user) {
 
+        var val = true;
+
         // callback is only used to verify that the user
         // has been deleted if needed.
-        res.send(true);
+        res.send(val);
+
+        return val;
+
+      }).then(function(data) {
+
+        // callback
+        next(data);
 
       });
 
