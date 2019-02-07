@@ -149,7 +149,8 @@
               game: game,
             },
             success: function(data) {
-              window.location = "/leaderboards/entries/" + data;
+              if (data.valid)
+                window.location = "/leaderboards/entries/" + data.game;
             },
           });
         }
@@ -176,7 +177,9 @@
               game: game,
             },
             success: function(data) {
-              if (data) window.location = "/leaderboards/entries/";
+
+              if (data.valid && data.game.length > 0)
+                window.location = "/leaderboards/entries/";
             },
           });
         }
@@ -209,7 +212,8 @@
               score: score,
             },
             success: function(data) {
-              location.reload();
+              if (data.valid && data.user == username && data.score == score)
+                location.reload();
             },
           });
         }
@@ -234,7 +238,7 @@
             score: $(this).prev().text(),
           },
           success: function(data) {
-            if (data) location.reload();
+            if (data.valid && data.score > 0) location.reload();
           },
         });
         return false;

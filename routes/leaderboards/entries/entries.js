@@ -37,14 +37,18 @@ module.exports.leaderboardEntries = function(db) {
       }
 
       if (!hasGame) currGame = "";
-      if (!hasGame && games.length > 0) currGame = games[0].dataValues.name;
+      if (Array.isArray(games) && !hasGame && games.length > 0) currGame = games[0].dataValues.name;
 
       // SELECT * FROM games WHERE delete_stamp IS NULL AND name="currGame";
-      return db.game.findOne({
+      return db.game.findAll({
         where: ({ delete_stamp: null, name: currGame })
       });
 
-    }).then(function(game) {
+    }).then(function(games) {
+
+      var game;
+      // only one occurrence should appear in the array
+      if (Array.isArray(games)) game = games[0];
 
       if (game) {
         // SELECT score, user.name FROM scores LEFT OUTER JOIN users AS "user" ON score.userId = user.id WHERE gameId = game.id AND delete_stamp = NULL;

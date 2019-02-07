@@ -25,6 +25,17 @@ module.exports.init = function(db) {
 
 
 
+// regarding js promises without Sequelize
+Promise.each = function(arr, fn) {
+  if(!Array.isArray(arr)) return Promise.reject(new Error("array undefined"));
+  if(arr.length === 0) return Promise.resolve();
+  return arr.reduce(function(prev, cur) {
+    return prev.then(() => fn(cur))
+  }, Promise.resolve());
+}
+
+
+
 module.exports.createGame = function(db) {
 
   return function(req, res, next) {
@@ -32,13 +43,18 @@ module.exports.createGame = function(db) {
     if (req.body.game.length > 0) {
 
       // SELECT id, name FROM games WHERE name = "req.body.game";
-      db.game.findOne({
+      db.game.findAll({
         attributes: ['id', 'name'],
         where: { name: req.body.game },
-      }).then(function(game) {
+      }).then(function(games) {
+
+        var game;
+
+        // retrieve the first (and only) value
+        if (Array.isArray(games)) game = games[0];
 
         // INSERT IGNORE INTO games (name) VALUES ("req.body.game");
-        if (!game) return db.game.create({name: req.body.game});
+        if (!game) return db.game.create({ name: req.body.game });
         else return game;
 
       }).then(function(game) {
@@ -48,7 +64,10 @@ module.exports.createGame = function(db) {
 
       }).then(function(game) {
 
-        var data = req.body.game;
+        var data = {
+          valid: true,
+          game: req.body.game,
+        };
 
         // we don't do anything with the callback here,
         // this is only to verify that the game has been
@@ -77,18 +96,22 @@ module.exports.deleteGame = function(db) {
 
   return function(req, res, next) {
 
+    var gameVal = "";
+
     // SELECT id, name FROM games WHERE name = "req.body.game";
-    db.game.findOne({
+    db.game.findAll({
       attributes: ['id', 'name'],
       where: { name: req.body.game }
-    }).then(function(game) {
+    }).then(function(games) {
 
       // sanity check -
       // game must exist in order for
       // the user to be able to delete it
-      if (game) return game;
+      if (Array.isArray(games)) return games[0];
 
     }).then(function(game) {
+
+      gameVal = game.dataValues.name;
 
       // UPDATE games WHERE name = "req.body.game" SET delete_stamp = NOW();
       return game.update({ delete_stamp: Date.now() });
@@ -99,7 +122,9 @@ module.exports.deleteGame = function(db) {
 
     }).then(function(scores) {
 
-      return db.sequelize.Promise.each(scores, function(score) {
+      // not using the built-in db.sequelize.Promise.each()
+      // function so Sequelize-Mock is able to function here.
+      return Promise.each(scores, function(score) {
 
         // UPDATE scores WHERE gameId = game.id SET delete_stamp = NOW();
         return score.update({ delete_stamp: Date.now() })
@@ -131,13 +156,17 @@ module.exports.deleteGame = function(db) {
 
     }).then(function(promise) {
 
-      var val = true;
+      var data = {
+        valid: true,
+        game: gameVal,
+      };
+
       // callback is only used to verify that
       // scores and users have been deleted if
       // needed.
-      res.send(val);
+      res.send(data);
 
-      return val;
+      return data;
 
     }).then(function(data) {
 

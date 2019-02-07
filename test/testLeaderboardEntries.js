@@ -28,9 +28,9 @@ function rnIndex(arr) {
 
 
 
-describe("route tests", () => {
+describe("/leaderboards/entries", () => {
 
-  // Pre hook
+  // Pre hooks
 
   before( () => {
     db = {
@@ -43,204 +43,279 @@ describe("route tests", () => {
     }
   });
 
+  beforeEach( () => {
+    router = require('../routes/leaderboards/entries/entries');
+  });
+
   // Unit tests
 
-  describe("/leaderboard/entries", () => {
+  /*
+  ** Routine test of route.
+  */
+  it("handles routine data", (done) => {
 
-    // Pre hook
+    // Setup
+    let gameName = faker.name.title();
+    let userName = faker.internet.userName();
+    let scoreVal = faker.random.number();
 
-    beforeEach( () => {
-      router = require('../routes/leaderboards/entries/entries');
+    db.game.$queueResult([
+      db.game.build({name:gameName})
+    ]);
+    db.score.$queueResult([ db.score.build({
+      score: scoreVal,
+      user: db.user.build({ name: userName }).dataValues
+    }) ]);
+
+    let req = httpM.createRequest({
+      method: 'GET',
+      url: '/leaderboards/entries',
+      params: { game: "" }
     });
+    let res = httpM.createResponse();
 
+    // Call
+    router.leaderboardEntries(db)(req, res, (data) => {
 
-    /*
-    ** Routine test of route.
-    */
-    it("handles routine data", (done) => {
+      // Evaluation
+      assert.equal(data.currGame, gameName, "Instance of game.name is NOT used as the current game");
+      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
 
-      // Setup
-      let gameName = faker.name.title();
-      let userName = faker.internet.userName();
-      let scoreVal = faker.random.number();
-
-      db.game.$queueResult([
-        db.game.build({name:gameName})
-      ]);
-      db.score.$queueResult([ db.score.build({
-        score: scoreVal,
-        user: db.user.build({ name: userName }).dataValues
-      }) ]);
-
-      let req = httpM.createRequest({
-        method: 'GET',
-        url: '/leaderboards/entries',
-        params: { game: "" }
-      });
-      let res = httpM.createResponse();
-
-      // Call
-      router.leaderboardEntries(db)(req, res, function(data) {
-
-        // Evaluation
-        assert.equal(data.currGame, gameName, "Instance of game.name is NOT used as the current game");
-        assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-        assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
-
-        // Restore
-        done();
-
-      });
+      // Restore
+      done();
 
     });
 
+  });
 
-    /*
-    ** Boundary test with an arbitrary number of games.
-    */
-    it("handles an arbitrary amount of games", (done) => {
+  /*
+  ** Boundary test with an arbitrary number of games.
+  */
+  it("handles an arbitrary amount of games", (done) => {
 
-      // Setup
-      let gameName;
-      let userName = faker.internet.userName();
-      let scoreVal = faker.random.number();
+    // Setup
+    let gameName;
+    let userName = faker.internet.userName();
+    let scoreVal = faker.random.number();
 
-      let gArray = [];
-      for (let i = 0; i < Math.random()*100; i++) {
-        gameName = faker.name.title();
-        gArray.push(db.game.build({ name: gameName }));
-      }
-      db.game.$queueResult(gArray);
+    let gArray = [];
+    for (let i = 0; i < Math.random()*100; i++) {
+      gameName = faker.name.title();
+      gArray.push(db.game.build({ name: gameName }));
+    }
+    db.game.$queueResult(gArray);
 
-      db.score.$queueResult([ db.score.build({
-        score: scoreVal,
-        user: db.user.build({ name: userName }).dataValues
-      }) ]);
+    db.score.$queueResult([ db.score.build({
+      score: scoreVal,
+      user: db.user.build({ name: userName }).dataValues
+    }) ]);
 
-      let req = httpM.createRequest({
-        method: 'GET',
-        url: '/leaderboards/entries',
-        params: { game: "" }
-      });
-      let res = httpM.createResponse();
+    let req = httpM.createRequest({
+      method: 'GET',
+      url: '/leaderboards/entries',
+      params: { game: "" }
+    });
+    let res = httpM.createResponse();
 
-      // Call
-      router.leaderboardEntries(db)(req, res, function(data) {
+    // Call
+    router.leaderboardEntries(db)(req, res, (data) => {
 
-        // Evaluation
-        assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
-        assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-        assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      // Evaluation
+      assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
+      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
 
-        // Restore
-        done();
-
-      });
+      // Restore
+      done();
 
     });
 
+  });
 
-    /*
-    ** Boundary test when a game parameter is specified and it is a valid
-    ** existing game.
-    */
-    it("handles a game parameter that exists", (done) => {
+  /*
+  ** Boundary test when a game parameter is specified and it is a valid
+  ** existing game.
+  */
+  it("handles a game parameter that exists", (done) => {
 
-      // Setup
-      let gameName, rnGameName;
-      let userName = faker.internet.userName();
-      let scoreVal = faker.random.number();
+    // Setup
+    let gameName, rnGameName;
+    let userName = faker.internet.userName();
+    let scoreVal = faker.random.number();
 
-      let gArray = [];
-      for (let i = 0; i < Math.random()*100; i++) {
-        gameName = faker.name.title();
-        gArray.push(db.game.build({ name: gameName }));
-      }
-      rnGameName = rnIndex(gArray).name;
-      db.game.$queueResult(gArray);
+    let gArray = [];
+    for (let i = 0; i < Math.random()*100; i++) {
+      gameName = faker.name.title();
+      gArray.push(db.game.build({ name: gameName }));
+    }
+    rnGameName = rnIndex(gArray).name;
+    db.game.$queueResult(gArray);
 
-      db.score.$queueResult([ db.score.build({
-        score: scoreVal,
-        user: db.user.build({ name: userName }).dataValues
-      }) ]);
+    db.score.$queueResult([ db.score.build({
+      score: scoreVal,
+      user: db.user.build({ name: userName }).dataValues
+    }) ]);
 
-      let req = httpM.createRequest({
-        method: 'GET',
-        url: '/leaderboards/entries',
-        params: { game: rnGameName }
-      });
-      let res = httpM.createResponse();
+    let req = httpM.createRequest({
+      method: 'GET',
+      url: '/leaderboards/entries',
+      params: { game: rnGameName }
+    });
+    let res = httpM.createResponse();
 
-      // Call
-      router.leaderboardEntries(db)(req, res, function(data) {
+    // Call
+    router.leaderboardEntries(db)(req, res, (data) => {
 
-        // Evaluation
-        assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
-        assert.equal(data.currGame, rnGameName, "Current game does NOT exist within the list of games");
-        assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-        assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      // Evaluation
+      assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
+      assert.equal(data.currGame, rnGameName, "Current game does NOT exist within the list of games");
+      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
 
-        // Restore
-        done();
-
-      });
+      // Restore
+      done();
 
     });
 
+  });
 
-    /*
-    ** Boundary test when a game parameter is specified and it is not a
-    ** valid existing game.
-    */
-    it("handles a game parameter that does not exist", (done) => {
+  /*
+  ** Boundary test when a game parameter is specified and it is not a
+  ** valid existing game.
+  */
+  it("handles a game parameter that does not exist", (done) => {
 
-      // Setup
-      let gameName;
-      let userName = faker.internet.userName();
-      let scoreVal = faker.random.number();
+    // Setup
+    let gameName;
+    let gameParam = faker.name.title();
+    let userName = faker.internet.userName();
+    let scoreVal = faker.random.number();
 
-      let gArray = [];
-      for (let i = 0; i < Math.random()*100; i++) {
-        gameName = faker.name.title();
-        gArray.push(db.game.build({ name: gameName }));
-      }
-      db.game.$queueResult(gArray);
+    let gArray = [];
+    for (let i = 0; i < Math.random()*100; i++) {
+      gameName = faker.name.title();
+      gArray.push(db.game.build({ name: gameName }));
+    }
+    db.game.$queueResult(gArray);
 
-      db.score.$queueResult([ db.score.build({
-        score: scoreVal,
-        user: db.user.build({ name: userName }).dataValues
-      }) ]);
+    db.score.$queueResult([ db.score.build({
+      score: scoreVal,
+      user: db.user.build({ name: userName }).dataValues
+    }) ]);
 
-      let req = httpM.createRequest({
-        method: 'GET',
-        url: '/leaderboards/entries',
-        params: { game: faker.internet.userName() }
-      });
-      let res = httpM.createResponse();
+    let req = httpM.createRequest({
+      method: 'GET',
+      url: '/leaderboards/entries',
+      params: { game: gameParam }
+    });
+    let res = httpM.createResponse();
 
-      // Call
-      router.leaderboardEntries(db)(req, res, function(data) {
+    // Call
+    router.leaderboardEntries(db)(req, res, (data) => {
 
-        // Evaluation
-        assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
-        assert.equal(data.gameList[0], data.currGame, "Current game is NOT the first game in the list");
-        assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-        assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      // Evaluation
+      assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
+      assert.equal(data.gameList[0], data.currGame, "Current game is NOT the first game in the list");
+      assert.notEqual(data.currGame, gameParam, "The given game parameter should NOT exist as a game");
+      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
 
-        // Restore
-        done();
-
-      });
+      // Restore
+      done();
 
     });
 
+  });
 
-    // Post hook
+  /*
+  ** Boundary test when no games exist and no parameter is given.
+  */
+  it("renders when no games exist and no parameter is given", (done) => {
 
-    afterEach( () => {
-      for (let m in db) db[m].$clearQueue();
+    // prevent mock from creating dummy data
+    db.game.options.autoQueryFallback = false;
+
+    // Setup
+    let userName = faker.internet.userName();
+    let scoreVal = faker.random.number();
+
+    db.game.$queueResult(null);
+    db.game.$queueResult([]);
+    db.score.$queueResult([ db.score.build({
+      score: scoreVal,
+      user: db.user.build({ name: userName }).dataValues
+    }) ]);
+
+    let req = httpM.createRequest({
+      method: 'GET',
+      url: '/leaderboards/entries',
+      params: { game: "" }
+    });
+    let res = httpM.createResponse();
+
+    // Call
+    router.leaderboardEntries(db)(req, res, (data) => {
+
+      // Evaluation
+      assert.equal(data.gameList.length, 0, "Game list is NOT empty");
+      assert.equal(data.currGame, "", "Current game is NOT empty");
+      assert.equal(data.data.length, 0, "Score data is NOT empty");
+
+      // Restore
+      db.game.options.autoQueryFallback = true;
+      done();
+
     });
 
+  });
+
+  /*
+  ** Boundary test when no games exist and a parameter is given.
+  */
+  it("renders when no games exist and a parameter is given", (done) => {
+
+        // prevent mock from creating dummy data
+        db.game.options.autoQueryFallback = false;
+
+        // Setup
+        let userName = faker.internet.userName();
+        let scoreVal = faker.random.number();
+
+        db.game.$queueResult(null);
+        db.game.$queueResult([]);
+        db.score.$queueResult([ db.score.build({
+          score: scoreVal,
+          user: db.user.build({ name: userName }).dataValues
+        }) ]);
+
+        let req = httpM.createRequest({
+          method: 'GET',
+          url: '/leaderboards/entries',
+          params: { game: faker.name.title() }
+        });
+        let res = httpM.createResponse();
+
+        // Call
+        router.leaderboardEntries(db)(req, res, (data) => {
+
+          // Evaluation
+          assert.equal(data.gameList.length, 0, "Game list is NOT empty");
+          assert.equal(data.currGame, "", "Current game is NOT empty");
+          assert.equal(data.data.length, 0, "Score data is NOT empty");
+
+          // Restore
+          db.game.options.autoQueryFallback = true;
+          done();
+
+        });
+
+  });
+
+  // Post hook
+
+  afterEach( () => {
+    for (let m in db) db[m].$clearQueue();
   });
 
 });

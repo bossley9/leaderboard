@@ -7,13 +7,14 @@
 
 module.exports = new Promise(function(resolve, reject) {
 
-  var fs = require('fs');
-  var path = require('path');
-  var Sequelize = require("sequelize");
+  let fs = require('fs');
+  let path = require('path');
+  let Sequelize = require("sequelize");
 
   // client-sensitive information stored here
-  var KEYS = require('../KEYS');
+  let KEYS = require('../KEYS');
 
+  const Op = Sequelize.Op;
   const sequelize = new Sequelize(KEYS.database, KEYS.username, KEYS.password, {
     host: KEYS.host,
     dialect: 'mysql',
@@ -24,13 +25,12 @@ module.exports = new Promise(function(resolve, reject) {
       idle: 10000
     },
 
-    // TEMP - suppresses String-based operator warning
-    operatorsAliases: false
+    operatorsAliases: Op,
   });
 
 
-  var db = {};
-
+  let db = {};
+  let model;
 
   fs.readdirSync(__dirname).filter(function(file) {
 
@@ -38,7 +38,7 @@ module.exports = new Promise(function(resolve, reject) {
 
   }).forEach(function(file) {
 
-    var model = sequelize.import(path.join(__dirname, file));
+    model = sequelize.import(path.join(__dirname, file));
     db[model.name] = model;
 
   });
@@ -54,9 +54,9 @@ module.exports = new Promise(function(resolve, reject) {
   db.sequelize = sequelize;
   db.Sequelize = Sequelize;
 
-  // TODO - switch on production
   db.sequelize.sync()
   //db.sequelize.sync({force: true})
+
   .then(function() {
     resolve(db);
   })

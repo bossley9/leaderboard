@@ -34,10 +34,13 @@ module.exports.createUserScore = function(db) {
       var newScore = req.body.score;
 
       // SELECT id, name FROM users WHERE name = "newUser";
-      db.user.findOne({
+      db.user.findAll({
         attributes: ['id', 'name'],
         where: { name: newUser }
-      }).then(function(user) {
+      }).then(function(users) {
+
+        var user;
+        if (Array.isArray(users)) user = users[0];
 
         // INSERT IGNORE INTO users (name) VALUES ("newUser");
         if (!user) return db.user.create({ name: newUser });
@@ -76,11 +79,15 @@ module.exports.createUserScore = function(db) {
 
             }).then(function() {
 
-              var val = true;
+              var data = {
+                valid: true,
+                user: newUser,
+                score: newScore
+              };
 
-              res.send(val);
+              res.send(data);
 
-              return val;
+              return data;
 
             }).then(function(data) {
 
@@ -109,17 +116,22 @@ module.exports.deleteUserScore = function(db) {
 
   return function(req, res, next) {
 
+    var scoreVal = -1;
+    var usersVal = [];
+
     // SELECT * FROM scores WHERE name = "req.body.username";
-    db.score.findOne({
+    db.score.findAll({
       where: { score: req.body.score }
-    }).then(function(score) {
+    }).then(function(scores) {
 
       // sanity check -
       // this score should exist because the user
       // clicked on it.
-      if (score) return score;
+      if (scores[0]) return scores[0];
 
     }).then(function(score) {
+
+      scoreVal = score.dataValues.score;
 
       // UPDATE scores WHERE score = "req.body.score" SET delete_stamp = NOW();
       return score.update({ delete_stamp: Date.now() });
@@ -131,12 +143,16 @@ module.exports.deleteUserScore = function(db) {
 
     }).then(function(user) {
 
+      if (Array.isArray(user)) user = user[0];
+
       // SELECT * FROM scores WHERE userId = user.id AND delete_stamp = NULL;
       user.getScores({
         where: { delete_stamp: null }
       }).then(function(scores) {
 
         if (scores.length == 0) {
+
+          usersVal.push(user);
 
           // UPDATE users WHERE id = user.id SET delete_stamp = NOW();
           return user.update({ delete_stamp: Date.now() });
@@ -146,13 +162,17 @@ module.exports.deleteUserScore = function(db) {
 
       }).then(function(user) {
 
-        var val = true;
+        var data = {
+          valid: true,
+          score: scoreVal,
+          users: usersVal,
+        };
 
         // callback is only used to verify that the user
         // has been deleted if needed.
-        res.send(val);
+        res.json(data);
 
-        return val;
+        return data;
 
       }).then(function(data) {
 
