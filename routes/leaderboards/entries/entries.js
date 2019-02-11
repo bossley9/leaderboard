@@ -21,7 +21,8 @@ module.exports.leaderboardEntries = function(db) {
   return function(req, res, next) {
 
     var currGame = req.params.game;
-    var gameList = [];
+    var gameList = [], userList = [];
+    var EntryData = [];
 
     // SELECT name FROM games WHERE delete_stamp IS NULL;
     db.game.findAll({
@@ -77,9 +78,21 @@ module.exports.leaderboardEntries = function(db) {
       else return [];
 
     }).then(function(scoreData) {
+      entryData = scoreData;
+
+      // SELECT * FROM users WHERE delete_stamp IS NULL;
+      return db.user.findAll({
+        where: { delete_stamp: null },
+      });
+
+    }).then(function(users) {
+
+      // query autocomplete
+      for (var u in users) userList.push(users[u].dataValues.name);
 
       var obj = {
-        data: scoreData,
+        userList: userList,
+        entryData: entryData,
         gameList: gameList,
         currGame: currGame,
       };

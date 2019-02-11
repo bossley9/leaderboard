@@ -3,6 +3,7 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8" />
+
     <title>
       <% if (currGame == "") { %>
         Leaderboards
@@ -71,10 +72,10 @@
           </tr>
         </thead>
         <tbody>
-          <% for (var i = 0; i < data.length; i++) { %>
+          <% for (var i = 0; i < entryData.length; i++) { %>
           <tr>
-            <td class="entry-username"><%= data[i].user_name %></td>
-            <td class="entry-score"><%= data[i].score %></td>
+            <td class="entry-username"><%= entryData[i].user_name %></td>
+            <td class="entry-score"><%= entryData[i].score %></td>
             <td class="entry-delete btn red lighten-2">delete</td>
           </tr>
           <% } %>
@@ -84,7 +85,12 @@
                 <div class="input-field">
                   <!--must include: no spaces, length 3 to 10 characters-->
                   <input class="input-username" autocomplete="off" type="text" required name="username" pattern="[^\s]+" maxlength="20" title="must contain no spaces" />
+
                   <label for="username">username</label>
+
+                  <!--
+                  <label for="username"></label>
+                  -->
                 </div>
               </td>
               <td>
@@ -107,11 +113,52 @@
     </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/typeahead.jquery.min.js"></script>
 
     <script>
 
-      const errorClasses = "blue lighten-2";
+/*
+      var substringMatcher = function(strs) {
+        return function findMatches(q, cb) {
+          var matches, substringRegex;
+
+          // an array that will be populated with substring matches
+          matches = [];
+
+          // regex used to determine if a string contains the substring `q`
+          substrRegex = new RegExp(q, 'i');
+
+          // iterate through the pool of strings and for any string that
+          // contains the substring `q`, add it to the `matches` array
+          $.each(strs, function(i, str) {
+            if (substrRegex.test(str)) {
+              matches.push(str);
+            }
+          });
+
+          cb(matches);
+        };
+      };
+
+      var userList = [];
+      <% for (var u in userList) { %>
+        userList.push("<%= userList[u] %>");
+      <% } %>
+
+
+      $('input.input-username').typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'userList',
+        source: substringMatcher(userList)
+      });
+*/
+
+      var errorClasses = "blue lighten-2";
 
       // -----------------------------------------------------------------------
       // Materialize

@@ -79,8 +79,8 @@ describe("/leaderboards/entries", () => {
 
       // Evaluation
       assert.equal(data.currGame, gameName, "Instance of game.name is NOT used as the current game");
-      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      assert.equal(data.entryData[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.entryData[0].score, scoreVal, "Instance of score value NOT used in score data");
 
       // Restore
       done();
@@ -123,8 +123,8 @@ describe("/leaderboards/entries", () => {
 
       // Evaluation
       assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
-      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      assert.equal(data.entryData[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.entryData[0].score, scoreVal, "Instance of score value NOT used in score data");
 
       // Restore
       done();
@@ -170,8 +170,8 @@ describe("/leaderboards/entries", () => {
       // Evaluation
       assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
       assert.equal(data.currGame, rnGameName, "Current game does NOT exist within the list of games");
-      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      assert.equal(data.entryData[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.entryData[0].score, scoreVal, "Instance of score value NOT used in score data");
 
       // Restore
       done();
@@ -218,8 +218,8 @@ describe("/leaderboards/entries", () => {
       assert(data.gameList.includes(data.currGame), "Current game is NOT a valid game within the list of games");
       assert.equal(data.gameList[0], data.currGame, "Current game is NOT the first game in the list");
       assert.notEqual(data.currGame, gameParam, "The given game parameter should NOT exist as a game");
-      assert.equal(data.data[0].user_name, userName, "Instance of score username NOT used in score data");
-      assert.equal(data.data[0].score, scoreVal, "Instance of score value NOT used in score data");
+      assert.equal(data.entryData[0].user_name, userName, "Instance of score username NOT used in score data");
+      assert.equal(data.entryData[0].score, scoreVal, "Instance of score value NOT used in score data");
 
       // Restore
       done();
@@ -260,7 +260,7 @@ describe("/leaderboards/entries", () => {
       // Evaluation
       assert.equal(data.gameList.length, 0, "Game list is NOT empty");
       assert.equal(data.currGame, "", "Current game is NOT empty");
-      assert.equal(data.data.length, 0, "Score data is NOT empty");
+      assert.equal(data.entryData.length, 0, "Score data is NOT empty");
 
       // Restore
       db.game.options.autoQueryFallback = true;
@@ -302,7 +302,7 @@ describe("/leaderboards/entries", () => {
           // Evaluation
           assert.equal(data.gameList.length, 0, "Game list is NOT empty");
           assert.equal(data.currGame, "", "Current game is NOT empty");
-          assert.equal(data.data.length, 0, "Score data is NOT empty");
+          assert.equal(data.entryData.length, 0, "Score data is NOT empty");
 
           // Restore
           db.game.options.autoQueryFallback = true;
