@@ -119,9 +119,18 @@ module.exports.deleteUserScore = function(db) {
     var scoreVal = -1;
     var usersVal = [];
 
-    // SELECT * FROM scores WHERE name = "req.body.username";
+    // SELECT * FROM scores AS score INNER JOIN users AS user AND
+    // user.delete_stamp IS NULL AND user.name="req.body.username" WHERE
+    // score.delete_stamp IS NULL AND score.score="req.body.score";
     db.score.findAll({
-      where: { score: req.body.score }
+      where: {
+        delete_stamp: null,
+        score: req.body.score,
+      },
+      include: [{ model: db.user, where: {
+        delete_stamp: null,
+        name: req.body.username 
+      } }]
     }).then(function(scores) {
 
       // sanity check -

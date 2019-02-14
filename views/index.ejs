@@ -12,13 +12,117 @@
       <% } %>
     </title>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/semantic.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/dropdown.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/base.css" />
+
   </head>
   <body>
-    <section>
 
-      <h2>Leaderboards</h2>
+    <!-- grid layout ---------------------------------------------------------->
+    <div class="ui padded relaxed grid centered master">
+
+
+      <!-- header row --------------------------------------------------------->
+      <div class="row column centered">
+        <h1 class="ui icon header">
+
+          <i class="globe icon"></i>
+
+          <div class="content">
+            Leaderboards
+            <div class="sub header">
+              A test api built with Node.js and Sequelize
+            </div>
+          </div>
+
+        </h1>
+      </div>
+
+
+      <!-- input row ---------------------------------------------------------->
+      <div class="row centered">
+        <div class="eight wide computer sixteen wide mobile column">
+
+          <form id="form-game" class="ui form">
+            <div class="inline fields">
+
+              <div class="twelve wide field">
+                <label>Create new game:</label>
+                <input name="input-game" type="text" name="first-name"
+                  autocomplete=off placeholder="Ex: Apex Legends">
+              </div>
+
+              <div class="field">
+              <div class="ui buttons">
+                <button onclick="this.value=true"
+                  class="ui positive button">Create</button>
+                <div class="or"></div>
+                <button onclick="this.value=true" class="ui button">
+                  Delete selected game</button>
+              </div>
+            </div>
+
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+
+      <!-- content row -------------------------------------------------------->
+      <div class="row column centered">
+
+        <select id="input-gameSelect" class="ui dropdown">
+          <!-- placeholder -->
+          <option value>Please create a game to continue.</option>
+
+<!-- dummy data -->
+          <option value="0" selected>Test1</option>
+          <option value="2">Test3</option>
+          <option value="1">Test2</option>
+<!-- dummy data -->
+
+          <% for (var i = 0; i < gameList.length; i++) { %>
+            <% if (gameList[i] == currGame) { %>
+              <!-- if current game, select -->
+              <option value="<%= i+1 %>" selected><%= gameList[i] %></option>
+            <% } else { %>
+              <option value="<%= i+1 %>"><%= gameList[i] %></option>
+            <% } %>
+          <% } %>
+
+        </select>
+
+        <table class="ui celled table">
+
+
+
+
+        </table>
+
+      </div>
+
+
+      <!-- footer row --------------------------------------------------------->
+      <div class="row column centered">
+      </div>
+
+
+    </div>
+
+
+
+
+<!------------------------>
+<!------------------------>
+<!------------------------>
+
+
+
+    <section style="margin-top: 5000px">
+
+      <h2 class="ui header">Leaderboards</h2>
 
         <table>
           <tr>
@@ -112,9 +216,9 @@
       <p>Repository is located on <a href="https://github.com/bossley9/leaderboard/">Github</a>.</p>
     </section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="/js/jquery-3.3.1.min.js"></script>
-    <script src="/js/typeahead.jquery.min.js"></script>
+    <script src="/js/semantic.min.js"></script>
+    <script src="/js/dropdown.min.js"></script>
 
     <script>
 
@@ -158,36 +262,64 @@
       });
 */
 
-      var errorClasses = "blue lighten-2";
-
       // -----------------------------------------------------------------------
-      // Materialize
+      // Semantic Ui
       // -----------------------------------------------------------------------
-
-      document.addEventListener('DOMContentLoaded', function() {
-        var elems = document.querySelectorAll('select');
-        var instances = M.FormSelect.init(elems);
-      });
+      $('select').dropdown();
 
       // -----------------------------------------------------------------------
       // <Select> change
       // -----------------------------------------------------------------------
-
+/*
       $('select#game-select').on('change', function () {
         var gameName = this.options[this.selectedIndex].text;
         window.location = "/leaderboards/entries/" + gameName;
       });
-
+*/
       // -----------------------------------------------------------------------
-      // CREATE game
+      // CREATE/DELETE game
       // -----------------------------------------------------------------------
 
+      $('#form-game').on('submit', function() {
+        var form = document.getElementById("form-game").elements;
+        /* inputted game */
+        var inputGame = form["input-game"].value;
+        /* current game */
+        var gameSelect = document.getElementById("input-gameSelect");
+        var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
+        /* button submit */
+        var createGame = form["submit-createGame"];
+        var deleteGame = form["submit-deleteGame"];
+
+        console.log(createGame);
+
+/*
+        if (createGame.value) {
+          console.log('create');
+        } else if (deleteGame.value) {
+          console.log('delete');
+        }
+*/
+
+        //console.log("inputted game:" + inputGame + "\ncurrent game:" + currentGame);
+
+/*
+        console.log(input);
+        console.log(input[0].value);
+        console.log(input[1].value);
+        console.log(input[2].value);
+*/
+
+        return false;
+      });
+
+/*
       $('form#game').on('submit', function() {
         var game = $('input.input-game').val();
         if (game.length > 40) {
-          M.toast({html: 'game name can only be a max of 40 characters', classes: errorClasses});
+//          M.toast({html: 'game name can only be a max of 40 characters', classes: errorClasses});
         } else if (game.length == 0) {
-          M.toast({html: 'game name field cannot be empty', classes: errorClasses});
+//          M.toast({html: 'game name field cannot be empty', classes: errorClasses});
         } else {
           $.ajax({
             type: 'POST',
@@ -204,7 +336,7 @@
 
         return false;
       });
-
+*/
       // -----------------------------------------------------------------------
       // DELETE game
       // -----------------------------------------------------------------------
@@ -214,7 +346,7 @@
         var game = gSelect.options[gSelect.selectedIndex].text;
 
         if (gSelect.firstElementChild.dataset.invalid == "true") {
-          M.toast({html: 'please first create a valid game', classes: errorClasses});
+//          M.toast({html: 'please first create a valid game', classes: errorClasses});
 
         } else {
           $.ajax({
@@ -245,9 +377,9 @@
         var score = $('input.input-score').val();
 
         if (gSelect.firstElementChild.dataset.invalid == "true") {
-          M.toast({html: 'please first create a valid game', classes: errorClasses});
+//          M.toast({html: 'please first create a valid game', classes: errorClasses});
         } else if (username.length < 3) {
-          M.toast({html: 'username must be at least 3 characters in length', classes: errorClasses});
+//          M.toast({html: 'username must be at least 3 characters in length', classes: errorClasses});
 
         } else {
           $.ajax({
@@ -275,14 +407,16 @@
       $('td.entry-delete').on('click', function() {
         var gSelect = document.getElementById("game-select");
         var game = gSelect.options[gSelect.selectedIndex].text;
+        var username = $(this).prev().prev().text();
+        var score = $(this).prev().text();
 
         $.ajax({
           type: 'DELETE',
           url: '/leaderboards/api/deleteUserScore',
           data: {
             game: game,
-            username: $(this).prev().prev().text(),
-            score: $(this).prev().text(),
+            username: username,
+            score: score,
           },
           success: function(data) {
             if (data.valid && data.score > 0) location.reload();
