@@ -24,7 +24,7 @@
 
 
       <!-- header row --------------------------------------------------------->
-      <div class="row column centered">
+      <div id="row-header" class="row column centered">
         <h1 class="ui icon header">
 
           <i class="globe icon"></i>
@@ -40,8 +40,8 @@
       </div>
 
 
-      <!-- input row ---------------------------------------------------------->
-      <div class="row centered">
+      <!-- game input row ----------------------------------------------------->
+      <div id="row-game" class="row centered">
         <div class="eight wide computer sixteen wide mobile column">
 
           <form id="form-game" class="ui form">
@@ -49,17 +49,17 @@
 
               <div class="twelve wide field">
                 <label>Create new game:</label>
-                <input name="input-game" type="text" name="first-name"
-                  autocomplete=off placeholder="Ex: Apex Legends">
+                <input name="input-game" type="text" autocomplete=off
+                  placeholder="Ex: Apex Legends">
               </div>
 
               <div class="field">
               <div class="ui buttons">
-                <button onclick="this.value=true"
+                <button name="submit-createGame" onclick="this.active=true"
                   class="ui positive button">Create</button>
                 <div class="or"></div>
-                <button onclick="this.value=true" class="ui button">
-                  Delete selected game</button>
+                <button name="submit-deleteGame" onclick="this.active=true"
+                  class="ui button">Delete selected game</button>
               </div>
             </div>
 
@@ -73,148 +73,98 @@
       <!-- content row -------------------------------------------------------->
       <div class="row column centered">
 
-        <select id="input-gameSelect" class="ui dropdown">
-          <!-- placeholder -->
-          <option value>Please create a game to continue.</option>
+        <!-- game selection --------------------------------------------------->
+        <div class="eight wide computer sixteen wide mobile column">
+          <select id="input-gameSelect" class="ui dropdown">
+            <!-- placeholder -->
+            <option value>Please create a game to continue.</option>
 
-<!-- dummy data -->
-          <option value="0" selected>Test1</option>
-          <option value="2">Test3</option>
-          <option value="1">Test2</option>
-<!-- dummy data -->
-
-          <% for (var i = 0; i < gameList.length; i++) { %>
-            <% if (gameList[i] == currGame) { %>
-              <!-- if current game, select -->
-              <option value="<%= i+1 %>" selected><%= gameList[i] %></option>
-            <% } else { %>
-              <option value="<%= i+1 %>"><%= gameList[i] %></option>
+            <% for (var i = 0; i < gameList.length; i++) { %>
+              <% if (gameList[i] == currGame) { %>
+                <!-- if current game, select -->
+                <option value="<%= i+1 %>" selected><%= gameList[i] %></option>
+              <% } else { %>
+                <option value="<%= i+1 %>"><%= gameList[i] %></option>
+              <% } %>
             <% } %>
-          <% } %>
-
-        </select>
-
-        <table class="ui celled table">
+          </select>
+        </div>
 
 
+        <br />
+        <br />
 
 
-        </table>
+        <!-- score table ------------------------------------------------------>
+        <div class="eight wide computer sixteen wide mobile column">
+          <table class="ui celled padded very basic table">
+
+            <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Score</th>
+                  <th>Delete</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+              <% for (var i = 0; i < entryData.length; i++) { %>
+              <tr>
+                <td class="entry-username"><i class="user icon"></i>
+                  <%= entryData[i].user_name %></td>
+                <td class="entry-score"><%= entryData[i].score %></td>
+                <td class="entry-delete collapsing">
+                  <i class="x icon"></i>
+                </td>
+              </tr>
+              <% } %>
+
+            </tbody>
+
+            <tfoot>
+              <tr><th colspan="3">
+
+                <!-- user/score input row ------------------------------------->
+                <form id="form-userScore" class="ui form">
+                  <div class="inline fields">
+
+                    <div class="eight wide field">
+                      <label>Username:</label>
+                      <input name="input-user" type="text" autocomplete=off
+                        placeholder="Ex: TheLegend27">
+                    </div>
+
+                    <div class="eight wide field">
+                      <label>Score:</label>
+                      <input name="input-score" type="number" autocomplete=off
+                        placeholder="Ex: 1234">
+                    </div>
+
+                    <button name="submit-createUserScore"
+                      class="ui positive button">Add</button>
+
+                  </div>
+                </form>
+
+              </th></tr>
+            </tfoot>
+
+          </table>
+        </div>
 
       </div>
 
 
       <!-- footer row --------------------------------------------------------->
       <div class="row column centered">
+        <p><i class="github icon"></i><a
+          href="https://github.com/bossley9/leaderboard/">@bossley9</a></p>
       </div>
 
 
     </div>
 
-
-
-
-<!------------------------>
-<!------------------------>
-<!------------------------>
-
-
-
-    <section style="margin-top: 5000px">
-
-      <h2 class="ui header">Leaderboards</h2>
-
-        <table>
-          <tr>
-            <form id="game" method="POST">
-              <!-- game options -->
-              <td>
-                <div class="input-field game-add">
-                  <select id="game-select">
-
-                    <% if (gameList.length == 0) { %>
-                      <option value="1" disabled selected data-invalid="true">please create a game to continue.</option>
-                    <% } %>
-
-                    <% for (var i = 0; i < gameList.length; i++) { %>
-                      <% if (gameList[i] == currGame) { %>
-                        <!-- if current game, select -->
-                        <option value="<%= i+1 %>" selected><%= gameList[i] %></option>
-                      <% } else { %>
-                        <option value="<%= i+1 %>"><%= gameList[i] %></option>
-                      <% } %>
-                    <% } %>
-
-                  </select>
-                  <label>Game</label>
-                </div>
-              </td>
-              <!-- add input -->
-              <td>
-                <div class="input-field game-add">
-                  <input type="text" class="input-game" autocomplete="off" name="game" />
-                  <label for="game">game name</label>
-                </div>
-              </td>
-              <!-- add button -->
-              <td>
-                <button for="game" class="game-add btn green lighten-2">Add</button>
-              </td>
-            </form>
-            <td>
-              <button id="game-delete" class="btn red lighten-2">Delete selected game</button>
-            </td>
-
-          </tr>
-        </table>
-
-      <table class="striped">
-        <thead>
-          <tr>
-            <td>Username</td>
-            <td>Score</td>
-          </tr>
-        </thead>
-        <tbody>
-          <% for (var i = 0; i < entryData.length; i++) { %>
-          <tr>
-            <td class="entry-username"><%= entryData[i].user_name %></td>
-            <td class="entry-score"><%= entryData[i].score %></td>
-            <td class="entry-delete btn red lighten-2">delete</td>
-          </tr>
-          <% } %>
-          <tr class="table-add">
-            <form id="user" method="POST">
-              <td>
-                <div class="input-field">
-                  <!--must include: no spaces, length 3 to 10 characters-->
-                  <input class="input-username" autocomplete="off" type="text" required name="username" pattern="[^\s]+" maxlength="20" title="must contain no spaces" />
-
-                  <label for="username">username</label>
-
-                  <!--
-                  <label for="username"></label>
-                  -->
-                </div>
-              </td>
-              <td>
-                <div class="input-field">
-                  <input class="input-score" type="number" required name="score" min="0" max="4294967295" autocomplete="off" />
-                  <label for="score">score</label>
-                </div>
-              </td>
-              <td>
-                <button class="btn green lighten-2" type="submit">add</button>
-              </td>
-            </form>
-          </tr>
-        </tbody>
-      </table>
-
-    </section>
-    <section class="credits">
-      <p>Repository is located on <a href="https://github.com/bossley9/leaderboard/">Github</a>.</p>
-    </section>
 
     <script src="/js/jquery-3.3.1.min.js"></script>
     <script src="/js/semantic.min.js"></script>
@@ -265,24 +215,25 @@
       // -----------------------------------------------------------------------
       // Semantic Ui
       // -----------------------------------------------------------------------
+
       $('select').dropdown();
 
       // -----------------------------------------------------------------------
       // <Select> change
       // -----------------------------------------------------------------------
-/*
-      $('select#game-select').on('change', function () {
+
+      $('#input-gameSelect').on('change', function () {
         var gameName = this.options[this.selectedIndex].text;
         window.location = "/leaderboards/entries/" + gameName;
       });
-*/
+
       // -----------------------------------------------------------------------
       // CREATE/DELETE game
       // -----------------------------------------------------------------------
 
       $('#form-game').on('submit', function() {
         var form = document.getElementById("form-game").elements;
-        /* inputted game */
+        /* input game */
         var inputGame = form["input-game"].value;
         /* current game */
         var gameSelect = document.getElementById("input-gameSelect");
@@ -291,76 +242,44 @@
         var createGame = form["submit-createGame"];
         var deleteGame = form["submit-deleteGame"];
 
-        console.log(createGame);
+        // detect which form button was pressed
 
-/*
-        if (createGame.value) {
-          console.log('create');
-        } else if (deleteGame.value) {
-          console.log('delete');
-        }
-*/
-
-        //console.log("inputted game:" + inputGame + "\ncurrent game:" + currentGame);
-
-/*
-        console.log(input);
-        console.log(input[0].value);
-        console.log(input[1].value);
-        console.log(input[2].value);
-*/
-
-        return false;
-      });
-
-/*
-      $('form#game').on('submit', function() {
-        var game = $('input.input-game').val();
-        if (game.length > 40) {
+        if (createGame.active) {
+          if (game.length > 40) {
 //          M.toast({html: 'game name can only be a max of 40 characters', classes: errorClasses});
-        } else if (game.length == 0) {
+          } else if (game.length == 0) {
 //          M.toast({html: 'game name field cannot be empty', classes: errorClasses});
-        } else {
-          $.ajax({
-            type: 'POST',
-            url: '/leaderboards/api/createGame',
-            data: {
-              game: game,
-            },
-            success: function(data) {
-              if (data.valid)
-                window.location = "/leaderboards/entries/" + data.game;
-            },
-          });
+          } else {
+
+            $.ajax({
+              type: 'POST',
+              url: '/leaderboards/api/createGame',
+              data: { game: inputGame },
+              success: function(data) {
+                if (data.valid)
+                  window.location = "/leaderboards/entries/" + data.game;
+              },
+            });
+
+          }
         }
 
-        return false;
-      });
-*/
-      // -----------------------------------------------------------------------
-      // DELETE game
-      // -----------------------------------------------------------------------
-
-      $('button#game-delete').on('click', function() {
-        var gSelect = document.getElementById("game-select");
-        var game = gSelect.options[gSelect.selectedIndex].text;
-
-        if (gSelect.firstElementChild.dataset.invalid == "true") {
+        else if (deleteGame.active) {
+          if (gameSelect.firstElementChild.dataset.invalid == "true") {
 //          M.toast({html: 'please first create a valid game', classes: errorClasses});
+          } else {
 
-        } else {
-          $.ajax({
-            type: 'DELETE',
-            url: '/leaderboards/api/deleteGame',
-            data: {
-              game: game,
-            },
-            success: function(data) {
+            $.ajax({
+              type: 'DELETE',
+              url: '/leaderboards/api/deleteGame',
+              data: { game: currentGame },
+              success: function(data) {
+                if (data.valid && data.game.length > 0)
+                  window.location = "/leaderboards/entries/";
+              },
+            });
 
-              if (data.valid && data.game.length > 0)
-                window.location = "/leaderboards/entries/";
-            },
-          });
+          }
         }
 
         return false;
@@ -370,23 +289,26 @@
       // CREATE user/score
       // -----------------------------------------------------------------------
 
-      $('form#user').on('submit', function() {
-        var gSelect = document.getElementById("game-select");
-        var game = gSelect.options[gSelect.selectedIndex].text;
-        var username = $('input.input-username').val();
-        var score = $('input.input-score').val();
+      $('#form-userScore').on('submit', function() {
+        var form = document.getElementById("form-userScore").elements;
+        /* current game */
+        var gameSelect = document.getElementById("input-gameSelect");
+        var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
+        /* input username */
+        var username = form["input-user"].value;
+        /* input score */
+        var score = form["input-score"].value;
 
-        if (gSelect.firstElementChild.dataset.invalid == "true") {
+        if (gameSelect.firstElementChild.dataset.invalid == "true") {
 //          M.toast({html: 'please first create a valid game', classes: errorClasses});
         } else if (username.length < 3) {
 //          M.toast({html: 'username must be at least 3 characters in length', classes: errorClasses});
-
         } else {
           $.ajax({
             type: 'POST',
             url: '/leaderboards/api/createUserScore',
             data: {
-              game: game,
+              game: currentGame,
               username: username,
               score: score,
             },
@@ -395,6 +317,7 @@
                 location.reload();
             },
           });
+
         }
 
         return false;
@@ -405,8 +328,9 @@
       // -----------------------------------------------------------------------
 
       $('td.entry-delete').on('click', function() {
-        var gSelect = document.getElementById("game-select");
-        var game = gSelect.options[gSelect.selectedIndex].text;
+        var gameSelect = document.getElementById("input-gameSelect");
+        var curentGame = gameSelect.options[gameSelect.selectedIndex].text;
+/*
         var username = $(this).prev().prev().text();
         var score = $(this).prev().text();
 
@@ -422,6 +346,8 @@
             if (data.valid && data.score > 0) location.reload();
           },
         });
+        */
+
         return false;
       });
 
