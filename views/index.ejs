@@ -3,6 +3,7 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
       <% if (currGame == "") { %>
@@ -14,6 +15,7 @@
 
     <link rel="stylesheet" type="text/css" href="/css/semantic.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/dropdown.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/search.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/base.css" />
 
   </head>
@@ -32,7 +34,7 @@
           <div class="content">
             Leaderboards
             <div class="sub header">
-              A test api built with Node.js and Sequelize
+              A RESTful API built with Node.js and Sequelize
             </div>
           </div>
 
@@ -47,23 +49,28 @@
           <form id="form-game" class="ui form">
             <div class="inline fields">
 
-              <div class="twelve wide field">
-                <label>Create new game:</label>
-                <input name="input-game" type="text" autocomplete=off
-                  placeholder="Ex: Apex Legends">
+              <div class="twelve wide computer sixteen wide mobile field">
+                <div class="ui fluid search search-game sixteen wide field">
+
+                  <label>Create new game:</label>
+                  <input class="prompt" name="input-game" type="text"
+                    autocomplete=off placeholder="Ex: Apex Legends">
+
+                </div>
               </div>
 
-              <div class="field">
-              <div class="ui buttons">
-                <button name="submit-createGame" onclick="this.active=true"
-                  class="ui positive button">Create</button>
-                <div class="or"></div>
-                <button name="submit-deleteGame" onclick="this.active=true"
-                  class="ui button">Delete selected game</button>
+              <div class="input-game-buttons field">
+                <div class="ui buttons">
+                  <button name="submit-createGame" onclick="this.active=true"
+                    class="ui positive button">Create</button>
+                  <div class="or"></div>
+                  <button name="submit-deleteGame" onclick="this.active=true"
+                    class="ui button">Delete selected game</button>
+                </div>
               </div>
-            </div>
 
             </div>
+            <div id="form-game-errors" class="ui error message"></div>
           </form>
 
         </div>
@@ -75,19 +82,32 @@
 
         <!-- game selection --------------------------------------------------->
         <div class="eight wide computer sixteen wide mobile column">
-          <select id="input-gameSelect" class="ui dropdown">
-            <!-- placeholder -->
-            <option value>Please create a game to continue.</option>
+          <div class="field">
+            <label><b>Selected Game: </b></label>
+            <select id="input-gameSelect" class="ui dropdown">
 
-            <% for (var i = 0; i < gameList.length; i++) { %>
-              <% if (gameList[i] == currGame) { %>
-                <!-- if current game, select -->
-                <option value="<%= i+1 %>" selected><%= gameList[i] %></option>
+              <% if (gameList.length == 0) { %>
+
+                <!-- placeholder -->
+                <option value data-invalid=true
+                  >Please create a game to continue.</option>
+
               <% } else { %>
-                <option value="<%= i+1 %>"><%= gameList[i] %></option>
+
+                <% for (var i = 0; i < gameList.length; i++) { %>
+                  <% if (gameList[i] == currGame) { %>
+                    <!-- if current game, select -->
+                    <option value="<%= i+1 %>"
+                      selected><%= gameList[i] %></option>
+                  <% } else { %>
+                    <option value="<%= i+1 %>"><%= gameList[i] %></option>
+                  <% } %>
+                <% } %>
+
               <% } %>
-            <% } %>
-          </select>
+
+            </select>
+          </div>
         </div>
 
 
@@ -97,28 +117,39 @@
 
         <!-- score table ------------------------------------------------------>
         <div class="eight wide computer sixteen wide mobile column">
-          <table class="ui celled padded very basic table">
+          <table class="ui padded very table">
 
             <thead>
-                <tr>
-                  <th>Username</th>
-                  <th>Score</th>
-                  <th>Delete</th>
-                </tr>
+              <tr>
+                <th>Username</th>
+                <th>Score</th>
+                <th>Delete</th>
+              </tr>
             </thead>
 
             <tbody>
 
-              <% for (var i = 0; i < entryData.length; i++) { %>
-              <tr>
-                <td class="entry-username"><i class="user icon"></i>
-                  <%= entryData[i].user_name %></td>
-                <td class="entry-score"><%= entryData[i].score %></td>
-                <td class="entry-delete collapsing">
-                  <i class="x icon"></i>
-                </td>
-              </tr>
+              <% if (entryData.length > 0) { %>
+                <% for (var i = 0; i < entryData.length; i++) { %>
+                <tr>
+                  <td class="entry-username">
+                    <i class="user icon"></i><%= entryData[i].user_name %>
+                  </td>
+                  <td class="entry-score"><%= entryData[i].score %></td>
+                  <td class="entry-delete collapsing center aligned">
+                    <i class="x icon"></i>
+                  </td>
+                </tr>
+                <% } %>
+              <% } else { %>
+                <tr>
+                  <td colspan="3" class="warning center aligned">
+                    <span>No scores for this game exist on record.</span>
+                  </td>
+                <tr>
               <% } %>
+
+
 
             </tbody>
 
@@ -130,9 +161,14 @@
                   <div class="inline fields">
 
                     <div class="eight wide field">
-                      <label>Username:</label>
-                      <input name="input-user" type="text" autocomplete=off
-                        placeholder="Ex: TheLegend27">
+                      <div class="ui search fluid search-username
+                        sixteen wide field">
+
+                        <label>Username:</label>
+                        <input class="prompt" name="input-user" type="text"
+                          autocomplete=off placeholder="Ex: TheLegend27">
+
+                      </div>
                     </div>
 
                     <div class="eight wide field">
@@ -145,6 +181,7 @@
                       class="ui positive button">Add</button>
 
                   </div>
+                  <div id="form-userScore-errors" class="ui error message"></div>
                 </form>
 
               </th></tr>
@@ -153,73 +190,122 @@
           </table>
         </div>
 
+
       </div>
 
 
       <!-- footer row --------------------------------------------------------->
-      <div class="row column centered">
-        <p><i class="github icon"></i><a
-          href="https://github.com/bossley9/leaderboard/">@bossley9</a></p>
+      <div id="footer" class="row column center aligned">
+        <div class="ui segment eight wide">
+          <p><i class="github icon"></i><a
+            href="https://github.com/bossley9/leaderboard/">
+            github.com/bossley9
+          </a></p>
+        </div>
       </div>
 
 
     </div>
 
-
     <script src="/js/jquery-3.3.1.min.js"></script>
     <script src="/js/semantic.min.js"></script>
     <script src="/js/dropdown.min.js"></script>
+    <script src="/js/search.min.js"></script>
 
     <script>
-
-/*
-      var substringMatcher = function(strs) {
-        return function findMatches(q, cb) {
-          var matches, substringRegex;
-
-          // an array that will be populated with substring matches
-          matches = [];
-
-          // regex used to determine if a string contains the substring `q`
-          substrRegex = new RegExp(q, 'i');
-
-          // iterate through the pool of strings and for any string that
-          // contains the substring `q`, add it to the `matches` array
-          $.each(strs, function(i, str) {
-            if (substrRegex.test(str)) {
-              matches.push(str);
-            }
-          });
-
-          cb(matches);
-        };
-      };
-
-      var userList = [];
-      <% for (var u in userList) { %>
-        userList.push("<%= userList[u] %>");
-      <% } %>
-
-
-      $('input.input-username').typeahead({
-        hint: true,
-        highlight: true,
-        minLength: 1
-      },
-      {
-        name: 'userList',
-        source: substringMatcher(userList)
-      });
-*/
 
       // -----------------------------------------------------------------------
       // Semantic Ui
       // -----------------------------------------------------------------------
 
+      /* game form validation */
+      $('#form-game').form({
+        fields: {
+          game: {
+            identifier: "input-game",
+            rules: [
+              // need to manually trim starting and ending whitespace...
+              {
+                type: 'empty',
+                prompt: 'Game name cannot be empty'
+              },
+              {
+                type: 'maxLength[40]',
+                prompt: 'Game name must be less than 40 characters'
+              },
+            ],
+          }
+        }
+      });
+
+      /* game form validation */
+      $('#form-userScore').form({
+        fields: {
+          username: {
+            identifier: "input-user",
+            rules: [
+              // need to manually trim starting and ending whitespace...
+              {
+                type: 'empty',
+                prompt: 'Username cannot be empty'
+              },
+              {
+                type: 'minLength[3]',
+                prompt: 'Username must be at least 3 characters',
+              },
+              {
+                type: 'maxLength[10]',
+                prompt: 'Username cannot be more than 10 characters',
+              },
+              {
+                type: 'doesntContain[ ]',
+                prompt: 'Username cannot contain spaces',
+              },
+            ],
+          },
+          score: {
+            identifier: "input-score",
+            rules: [
+              {
+                type: 'empty',
+                prompt: 'Score cannot be empty'
+              },
+              {
+                type: 'integer[0..4000000000]',
+                prompt: 'Score must be an integer between 0 and 4000000000'
+              },
+            ],
+          },
+        }
+      });
+
+      /* game dropdown */
       $('select').dropdown();
 
+      /* username search list */
+      var usernames = [];
+      <% for (var u in userList) { %>
+        usernames.push({ title: "<%= userList[u] %>" });
+      <% } %>
+
+      $('.search-username').search({
+        source: usernames,
+        minCharacters: 3,
+      });
+
+      /* game search list */
+      var games = [];
+      <% for (var g in gameList) { %>
+        games.push({ title: "<%= gameList[g] %>" });
+      <% } %>
+
+      $('.search-game').search({
+        source: games,
+        minCharacters: 3,
+      });
+
       // -----------------------------------------------------------------------
-      // <Select> change
+      // <Select> game change
       // -----------------------------------------------------------------------
 
       $('#input-gameSelect').on('change', function () {
@@ -235,6 +321,8 @@
         var form = document.getElementById("form-game").elements;
         /* input game */
         var inputGame = form["input-game"].value;
+        // manually remove trailing whitespace
+        inputGame = inputGame.replace(/^\s+|\s+$/gm,'');
         /* current game */
         var gameSelect = document.getElementById("input-gameSelect");
         var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
@@ -242,14 +330,15 @@
         var createGame = form["submit-createGame"];
         var deleteGame = form["submit-deleteGame"];
 
-        // detect which form button was pressed
+        /* detect which form button was pressed */
 
         if (createGame.active) {
-          if (game.length > 40) {
-//          M.toast({html: 'game name can only be a max of 40 characters', classes: errorClasses});
-          } else if (game.length == 0) {
-//          M.toast({html: 'game name field cannot be empty', classes: errorClasses});
-          } else {
+
+          // unnecessary because of page reloading but kept for completeness
+          createGame.active = false;
+
+          // only if form passes validation
+          if( $('#form-game').form('is valid') ) {
 
             $.ajax({
               type: 'POST',
@@ -265,9 +354,17 @@
         }
 
         else if (deleteGame.active) {
-          if (gameSelect.firstElementChild.dataset.invalid == "true") {
-//          M.toast({html: 'please first create a valid game', classes: errorClasses});
-          } else {
+
+          // unnecessary because of page reloading but kept for completeness
+          deleteGame.active = false;
+
+          // clear form and hide validation errors
+          $('#form-game').form('clear');
+          var errors = document.getElementById("form-game-errors");
+          while (errors.firstChild) errors.removeChild(errors.firstChild);
+
+          // if first game is valid
+          if (!gameSelect.firstElementChild.dataset.invalid) {
 
             $.ajax({
               type: 'DELETE',
@@ -280,6 +377,7 @@
             });
 
           }
+
         }
 
         return false;
@@ -296,28 +394,30 @@
         var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
         /* input username */
         var username = form["input-user"].value;
+        // manually remove trailing whitespace
+        username = username.replace(/^\s+|\s+$/gm,'');
         /* input score */
         var score = form["input-score"].value;
 
-        if (gameSelect.firstElementChild.dataset.invalid == "true") {
-//          M.toast({html: 'please first create a valid game', classes: errorClasses});
-        } else if (username.length < 3) {
-//          M.toast({html: 'username must be at least 3 characters in length', classes: errorClasses});
-        } else {
-          $.ajax({
-            type: 'POST',
-            url: '/leaderboards/api/createUserScore',
-            data: {
-              game: currentGame,
-              username: username,
-              score: score,
-            },
-            success: function(data) {
-              if (data.valid && data.user == username && data.score == score)
-                location.reload();
-            },
-          });
+        // only if form passes validation
+        if( $('#form-userScore').form('is valid') ) {
+          if (!gameSelect.firstElementChild.dataset.invalid) {
 
+            $.ajax({
+              type: 'POST',
+              url: '/leaderboards/api/createUserScore',
+              data: {
+                game: currentGame,
+                username: username,
+                score: score,
+              },
+              success: function(data) {
+                if (data.valid && data.user == username && data.score == score)
+                  location.reload();
+              },
+            });
+
+          }
         }
 
         return false;
@@ -329,16 +429,17 @@
 
       $('td.entry-delete').on('click', function() {
         var gameSelect = document.getElementById("input-gameSelect");
-        var curentGame = gameSelect.options[gameSelect.selectedIndex].text;
-/*
-        var username = $(this).prev().prev().text();
-        var score = $(this).prev().text();
+        var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
+        var username = this.parentElement
+          .getElementsByClassName("entry-username")[0].innerText;
+        var score = this.parentElement
+          .getElementsByClassName("entry-score")[0].innerText;
 
         $.ajax({
           type: 'DELETE',
           url: '/leaderboards/api/deleteUserScore',
           data: {
-            game: game,
+            game: currentGame,
             username: username,
             score: score,
           },
@@ -346,7 +447,6 @@
             if (data.valid && data.score > 0) location.reload();
           },
         });
-        */
 
         return false;
       });

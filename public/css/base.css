@@ -1,7 +1,7 @@
 
 
 
-body { overflow: hidden }
+body { /*overflow: hidden*/ }
 
 div.master { height: 100% }
 
@@ -10,3 +10,20 @@ tr:hover td { background-color: #f9f9f9 !important }
 .entry-delete { cursor: pointer }
 .entry-delete:hover { background-color: #f25a5a !important }
 .entry-delete:hover i { color: white !important }
+
+#footer .segment {
+  width: 50%;
+  font-size: 1.2rem;
+  margin-bottom: 2%;
+}
+
+/* MOBILE DEVICES */
+@media only screen and (max-device-width: 600px) {
+
+  .input-game-buttons {
+    margin: 0 auto !important;
+    padding-top: 5% !important;
+  }
+
+
+}
