@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="/css/semantic.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/dropdown.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/search.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/modal.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/base.css" />
 
   </head>
@@ -197,26 +198,95 @@
       <!-- footer row --------------------------------------------------------->
       <div id="footer" class="row column center aligned">
         <div class="ui segment eight wide">
+
           <p><i class="github icon"></i><a
             href="https://github.com/bossley9/leaderboard/">
             github.com/bossley9
           </a></p>
+
+          <button id="destroy-tables" class="ui labeled icon basic negative button">
+            <i class="trash icon"></i>
+            Destroy Tables
+          </button>
+
         </div>
       </div>
 
 
     </div>
 
+
+    <div id="destroy-tables-modal" class="ui basic modal">
+
+      <h2 class="ui icon header">
+        <i class="trash icon"></i>
+        <div class="content">Destroy all relevant table data</div>
+      </h2>
+
+      <div class="content ui grid centered">
+        <br />
+        <br />
+        <p>WARNING: Once you make this change, you will not be able to recover data.</p>
+        <p>Please press "confirm" to confirm this action.</p>
+      </div>
+
+      <div class="actions">
+          <div class="ui approve button">Cancel</div>
+          <div class="ui negative button">Confirm</div>
+        </div>
+
+    </div>
+
+
     <script src="/js/jquery-3.3.1.min.js"></script>
     <script src="/js/semantic.min.js"></script>
     <script src="/js/dropdown.min.js"></script>
     <script src="/js/search.min.js"></script>
+    <script src="/js/modal.min.js"></script>
+
 
     <script>
 
       // -----------------------------------------------------------------------
       // Semantic Ui
       // -----------------------------------------------------------------------
+
+      /* custom form validator ensuring a game exists */
+      $.fn.form.settings.rules.gameExists = function() {
+        var gameExists = false;
+
+        var gameSelect = document.getElementById("input-gameSelect");
+        // if no games exist
+        if (gameSelect.firstElementChild.dataset.invalid) {
+
+          var form = document.getElementById("form-game").elements;
+
+          // if creating a game, it doesn't matter whether games exist or not
+          if (form["submit-createGame"].active) gameExists = true;
+
+        }
+        // if some game exists
+        else gameExists = true;
+
+        return gameExists;
+      }
+
+      /* custom form validator ensuring (game != "") */
+      $.fn.form.settings.rules.gameNonEmpty = function() {
+        gameNameLen = 0;
+
+        var form = document.getElementById("form-game").elements;
+        var inputGame = form["input-game"].value;
+        // manually remove trailing whitespace
+        inputGame = inputGame.replace(/^\s+|\s+$/gm,'');
+
+        gameNameLen = inputGame.length;
+
+        // if deleting game, the input game doesn't matter
+        if (form["submit-deleteGame"].active) gameNameLen = 1;
+
+        return gameNameLen;
+      }
 
       /* game form validation */
       $('#form-game').form({
@@ -226,12 +296,16 @@
             rules: [
               // need to manually trim starting and ending whitespace...
               {
-                type: 'empty',
-                prompt: 'Game name cannot be empty'
-              },
-              {
                 type: 'maxLength[40]',
                 prompt: 'Game name must be less than 40 characters'
+              },
+              {
+                type: 'gameExists',
+                prompt: 'A game must exist in order to be deleted'
+              },
+              {
+                type: 'gameNonEmpty',
+                prompt: 'Game name cannot be empty'
               },
             ],
           }
@@ -274,6 +348,10 @@
                 type: 'integer[0..4000000000]',
                 prompt: 'Score must be an integer between 0 and 4000000000'
               },
+              {
+                type: 'gameExists',
+                prompt: 'A game must exist in order to add a score value'
+              },
             ],
           },
         }
@@ -291,6 +369,7 @@
       $('.search-username').search({
         source: usernames,
         minCharacters: 3,
+        showNoResults: false,
       });
 
       /* game search list */
@@ -302,6 +381,7 @@
       $('.search-game').search({
         source: games,
         minCharacters: 3,
+        showNoResults: false,
       });
 
       // -----------------------------------------------------------------------
@@ -334,11 +414,11 @@
 
         if (createGame.active) {
 
-          // unnecessary because of page reloading but kept for completeness
-          createGame.active = false;
-
           // only if form passes validation
           if( $('#form-game').form('is valid') ) {
+
+            // unnecessary because of page reloading but kept for completeness
+            createGame.active = false;
 
             $.ajax({
               type: 'POST',
@@ -360,8 +440,8 @@
 
           // clear form and hide validation errors
           $('#form-game').form('clear');
-          var errors = document.getElementById("form-game-errors");
-          while (errors.firstChild) errors.removeChild(errors.firstChild);
+          //var errors = document.getElementById("form-game-errors");
+          //while (errors.firstChild) errors.removeChild(errors.firstChild);
 
           // if first game is valid
           if (!gameSelect.firstElementChild.dataset.invalid) {
@@ -447,6 +527,38 @@
             if (data.valid && data.score > 0) location.reload();
           },
         });
+
+        return false;
+      });
+
+      // -----------------------------------------------------------------------
+      // DESTROY tables
+      // -----------------------------------------------------------------------
+
+      $('button#destroy-tables').on('click', function() {
+        $('#destroy-tables-modal').modal({
+          onApprove: function() {}, // cancelled
+          onDeny: function() { // confirmed
+
+            console.log("deleting all your personal information off the web...");
+/*
+            $.ajax({
+              type: 'DELETE',
+              url: '/leaderboards/api/deleteUserScore',
+              data: {
+                game: currentGame,
+                username: username,
+                score: score,
+              },
+              success: function(data) {
+                if (data.valid && data.game.length > 0)
+                  window.location = "/leaderboards/entries/";
+              },
+            });
+            */
+
+          }
+        }).modal('show');
 
         return false;
       });
