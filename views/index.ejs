@@ -7,9 +7,9 @@
 
     <title>
       <% if (currGame == "") { %>
-        Leaderboards
+        Leaderboards API
       <% } else { %>
-        Leaderboards: <%= currGame %>
+        <%= currGame %> - Leaderboards API
       <% } %>
     </title>
 
@@ -22,28 +22,28 @@
   </head>
   <body>
 
-    <!-- grid layout ---------------------------------------------------------->
+    <!-- grid layout -->
     <div class="ui padded relaxed grid centered master">
 
-
-      <!-- header row --------------------------------------------------------->
-      <div id="row-header" class="row column centered">
+      <!----------------------------------------------------------------------->
+      <!-- HEADER ------------------------------------------------------------->
+      <!----------------------------------------------------------------------->
+      <header id="row-header" class="row column centered">
         <h1 class="ui icon header">
-
           <i class="globe icon"></i>
-
-          <div class="content">
+          <span class="content">
             Leaderboards
-            <div class="sub header">
+            <span class="sub header">
               A RESTful API built with Node.js and Sequelize
-            </div>
-          </div>
-
+            </span>
+          </span>
         </h1>
-      </div>
+      </header>
 
 
-      <!-- game input row ----------------------------------------------------->
+      <!----------------------------------------------------------------------->
+      <!-- GAME INPUT --------------------------------------------------------->
+      <!----------------------------------------------------------------------->
       <div id="row-game" class="row centered">
         <div class="eight wide computer sixteen wide mobile column">
 
@@ -63,14 +63,16 @@
               <div class="input-game-buttons field">
                 <div class="ui buttons">
                   <button name="submit-createGame" onclick="this.active=true"
-                    class="ui positive button">Create</button>
+                    tabindex="0" class="ui positive button">Create Game</button>
                   <div class="or"></div>
                   <button name="submit-deleteGame" onclick="this.active=true"
-                    class="ui button">Delete selected game</button>
+                    class="ui button deleteGameButton" tabindex="0">
+                    Delete selected game</button>
                 </div>
               </div>
 
             </div>
+
             <div id="form-game-errors" class="ui error message"></div>
           </form>
 
@@ -78,26 +80,26 @@
       </div>
 
 
-      <!-- content row -------------------------------------------------------->
+      <!-- content row -->
       <div class="row column centered">
 
-        <!-- game selection --------------------------------------------------->
+        <!--------------------------------------------------------------------->
+        <!-- GAME SELECTION --------------------------------------------------->
+        <!--------------------------------------------------------------------->
         <div class="eight wide computer sixteen wide mobile column">
           <div class="field">
             <label><b>Selected Game: </b></label>
-            <select id="input-gameSelect" class="ui dropdown">
-
+            <select id="input-gameSelect"
+              class="ui dropdown">
               <% if (gameList.length == 0) { %>
 
-                <!-- placeholder -->
                 <option value data-invalid=true
-                  >Please create a game to continue.</option>
+                  >Please create a game to continue</option>
 
               <% } else { %>
 
                 <% for (var i = 0; i < gameList.length; i++) { %>
                   <% if (gameList[i] == currGame) { %>
-                    <!-- if current game, select -->
                     <option value="<%= i+1 %>"
                       selected><%= gameList[i] %></option>
                   <% } else { %>
@@ -116,7 +118,9 @@
         <br />
 
 
-        <!-- score table ------------------------------------------------------>
+        <!--------------------------------------------------------------------->
+        <!-- DATA TABLE ------------------------------------------------------->
+        <!--------------------------------------------------------------------->
         <div class="eight wide computer sixteen wide mobile column">
           <table class="ui padded very table">
 
@@ -124,7 +128,7 @@
               <tr>
                 <th>Username</th>
                 <th>Score</th>
-                <th>Delete</th>
+                <th class="title-delete">Delete</th>
               </tr>
             </thead>
 
@@ -157,11 +161,13 @@
             <tfoot>
               <tr><th colspan="3">
 
-                <!-- user/score input row ------------------------------------->
+                <!------------------------------------------------------------->
+                <!-- DATA INPUT ----------------------------------------------->
+                <!------------------------------------------------------------->
                 <form id="form-userScore" class="ui form">
                   <div class="inline fields">
 
-                    <div class="eight wide field">
+                    <div class="seven wide field input-entry">
                       <div class="ui search fluid search-username
                         sixteen wide field">
 
@@ -172,17 +178,19 @@
                       </div>
                     </div>
 
-                    <div class="eight wide field">
+                    <div class="seven wide field input-entry">
                       <label>Score:</label>
                       <input name="input-score" type="number" autocomplete=off
                         placeholder="Ex: 1234">
                     </div>
 
                     <button name="submit-createUserScore"
-                      class="ui positive button">Add</button>
+                      class="ui positive button input-entry-button">
+                      Add Score</button>
 
                   </div>
-                  <div id="form-userScore-errors" class="ui error message"></div>
+                  <div id="form-userScore-errors" class="ui error message">
+                  </div>
                 </form>
 
               </th></tr>
@@ -195,46 +203,48 @@
       </div>
 
 
-      <!-- footer row --------------------------------------------------------->
-      <div id="footer" class="row column center aligned">
+      <!----------------------------------------------------------------------->
+      <!-- FOOTER ====--------------------------------------------------------->
+      <!----------------------------------------------------------------------->
+      <footer id="footer" class="row column center aligned">
         <div class="ui segment eight wide">
 
-          <p><i class="github icon"></i><a
+          <p><i class="github icon"></i><a tabindex="0" class="link"
             href="https://github.com/bossley9/leaderboard/">
             github.com/bossley9
           </a></p>
 
-          <button id="destroy-tables" class="ui labeled icon basic negative button">
-            <i class="trash icon"></i>
-            Destroy Tables
-          </button>
-
         </div>
-      </div>
+      </footer>
 
 
     </div>
 
+    <!-- modal activator -->
+    <button id="destroy-tables" class="ui labeled icon button">
+      <i class="trash icon"></i>
+      Destroy Tables
+    </button>
 
+
+    <!------------------------------------------------------------------------->
+    <!-- MODAL ---------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
     <div id="destroy-tables-modal" class="ui basic modal">
-
       <h2 class="ui icon header">
         <i class="trash icon"></i>
         <div class="content">Destroy all relevant table data</div>
       </h2>
-
       <div class="content ui grid centered">
-        <br />
-        <br />
-        <p>WARNING: Once you make this change, you will not be able to recover data.</p>
+        <br /><br />
+        <p>WARNING: Once you make this change,
+          you will not be able to recover data.</p>
         <p>Please press "confirm" to confirm this action.</p>
       </div>
-
       <div class="actions">
-          <div class="ui approve button">Cancel</div>
-          <div class="ui negative button">Confirm</div>
-        </div>
-
+        <div class="ui approve button">Cancel</div>
+        <div class="ui destroy-confirm deny button">Confirm</div>
+      </div>
     </div>
 
 
@@ -254,18 +264,14 @@
       /* custom form validator ensuring a game exists */
       $.fn.form.settings.rules.gameExists = function() {
         var gameExists = false;
-
         var gameSelect = document.getElementById("input-gameSelect");
-        // if no games exist
+
         if (gameSelect.firstElementChild.dataset.invalid) {
-
           var form = document.getElementById("form-game").elements;
-
-          // if creating a game, it doesn't matter whether games exist or not
+          // when creating a game it doesn't matter whether games exist or not
           if (form["submit-createGame"].active) gameExists = true;
 
         }
-        // if some game exists
         else gameExists = true;
 
         return gameExists;
@@ -273,22 +279,18 @@
 
       /* custom form validator ensuring (game != "") */
       $.fn.form.settings.rules.gameNonEmpty = function() {
-        gameNameLen = 0;
-
+        var gameNameLen = 0;
         var form = document.getElementById("form-game").elements;
         var inputGame = form["input-game"].value;
         // manually remove trailing whitespace
         inputGame = inputGame.replace(/^\s+|\s+$/gm,'');
-
         gameNameLen = inputGame.length;
-
-        // if deleting game, the input game doesn't matter
+        // when deleting a game the input game doesn't matter
         if (form["submit-deleteGame"].active) gameNameLen = 1;
 
         return gameNameLen;
       }
-
-      /* game form validation */
+      /* form validation */
       $('#form-game').form({
         fields: {
           game: {
@@ -311,8 +313,6 @@
           }
         }
       });
-
-      /* game form validation */
       $('#form-userScore').form({
         fields: {
           username: {
@@ -328,8 +328,8 @@
                 prompt: 'Username must be at least 3 characters',
               },
               {
-                type: 'maxLength[10]',
-                prompt: 'Username cannot be more than 10 characters',
+                type: 'maxLength[20]',
+                prompt: 'Username cannot be more than 20 characters',
               },
               {
                 type: 'doesntContain[ ]',
@@ -358,7 +358,7 @@
       });
 
       /* game dropdown */
-      $('select').dropdown();
+      $('#input-gameSelect').dropdown();
 
       /* username search list */
       var usernames = [];
@@ -399,14 +399,11 @@
 
       $('#form-game').on('submit', function() {
         var form = document.getElementById("form-game").elements;
-        /* input game */
         var inputGame = form["input-game"].value;
         // manually remove trailing whitespace
         inputGame = inputGame.replace(/^\s+|\s+$/gm,'');
-        /* current game */
         var gameSelect = document.getElementById("input-gameSelect");
         var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
-        /* button submit */
         var createGame = form["submit-createGame"];
         var deleteGame = form["submit-deleteGame"];
 
@@ -414,11 +411,12 @@
 
         if (createGame.active) {
 
-          // only if form passes validation
           if( $('#form-game').form('is valid') ) {
 
             // unnecessary because of page reloading but kept for completeness
             createGame.active = false;
+
+            $('#form-game').removeClass('success');
 
             $.ajax({
               type: 'POST',
@@ -440,21 +438,18 @@
 
           // clear form and hide validation errors
           $('#form-game').form('clear');
-          //var errors = document.getElementById("form-game-errors");
-          //while (errors.firstChild) errors.removeChild(errors.firstChild);
 
-          // if first game is valid
           if (!gameSelect.firstElementChild.dataset.invalid) {
 
-            $.ajax({
-              type: 'DELETE',
-              url: '/leaderboards/api/deleteGame',
-              data: { game: currentGame },
-              success: function(data) {
-                if (data.valid && data.game.length > 0)
-                  window.location = "/leaderboards/entries/";
-              },
-            });
+              $.ajax({
+                type: 'DELETE',
+                url: '/leaderboards/api/deleteGame',
+                data: { game: currentGame },
+                success: function(data) {
+                  if (data.valid && data.game.length > 0)
+                    window.location = "/leaderboards/entries/";
+                },
+              });
 
           }
 
@@ -469,17 +464,13 @@
 
       $('#form-userScore').on('submit', function() {
         var form = document.getElementById("form-userScore").elements;
-        /* current game */
         var gameSelect = document.getElementById("input-gameSelect");
         var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
-        /* input username */
         var username = form["input-user"].value;
         // manually remove trailing whitespace
         username = username.replace(/^\s+|\s+$/gm,'');
-        /* input score */
         var score = form["input-score"].value;
 
-        // only if form passes validation
         if( $('#form-userScore').form('is valid') ) {
           if (!gameSelect.firstElementChild.dataset.invalid) {
 
@@ -539,23 +530,16 @@
         $('#destroy-tables-modal').modal({
           onApprove: function() {}, // cancelled
           onDeny: function() { // confirmed
-
-            console.log("deleting all your personal information off the web...");
-/*
             $.ajax({
               type: 'DELETE',
-              url: '/leaderboards/api/deleteUserScore',
-              data: {
-                game: currentGame,
-                username: username,
-                score: score,
-              },
+              url: '/leaderboards/api/destroy',
+              data: {},
               success: function(data) {
-                if (data.valid && data.game.length > 0)
+                if (data.valid)
                   window.location = "/leaderboards/entries/";
               },
             });
-            */
+
 
           }
         }).modal('show');

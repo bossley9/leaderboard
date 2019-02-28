@@ -1,9 +1,41 @@
 
 
+/* red: #f25a5a */
+/* gray: #f9f9f9 */
 
-body { /*overflow: hidden*/ }
+body {
+  height: 100%;
+  min-height: 100%;
+}
 
 div.master { height: 100% }
+
+/* Chrome, Firefox, Opera, Safari 10.1+ */
+::placeholder { color: #000 !important; opacity: 1; /* Firefox */ }
+/* Internet Explorer 10-11 */
+:-ms-input-placeholder { color: #000 !important }
+/* Microsoft Edge */
+::-ms-input-placeholder { color: #000 !important }
+
+.ui.default.dropdown:not(.button)>.text,
+.ui.dropdown:not(.button)>.default.text {
+  color: #000 !important;
+}
+
+.ui.form input:focus, .ui.dropdown:focus {
+  border-color: #000 !important;
+}
+button.ui.button:focus {
+  border: 1px solid #000 !important;
+}
+
+.deleteGameButton {
+  color: #000 !important;
+}
+.deleteGameButton:hover {
+  background-color: #f25a5a !important;
+  color: #fff !important;
+}
 
 tr:hover td { background-color: #f9f9f9 !important }
 
@@ -17,13 +49,54 @@ tr:hover td { background-color: #f9f9f9 !important }
   margin-bottom: 2%;
 }
 
+.link {
+  color: #000;
+  text-decoration: underline;
+}
+.link:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+#destroy-tables {
+  display: block;
+  margin: 25px auto;
+  color: #000;
+}
+#destroy-tables:hover {
+  background-color: #f25a5a !important;
+  color: #fff !important;
+}
+
+.ui.approve.button { color: #000 !important }
+.destroy-confirm {
+  background-color: #f25a5a !important;
+  color: #fff !important;
+}
+
 /* MOBILE DEVICES */
-@media only screen and (max-device-width: 600px) {
+@media only screen and (max-width: 775px) {
 
   .input-game-buttons {
-    margin: 0 auto !important;
-    padding-top: 5% !important;
+    width: 100%;
+
+    text-align: center;
+
+    padding-top: 15px !important;
   }
 
+  .input-entry { margin: 15px 0 !important }
+
+  .ui.padded.very.table tr { padding: 0 !important }
+
+  .ui.padded.very.table thead th.title-delete,
+  .ui.padded.very.table td.entry-delete {
+    display: none !important;
+  }
+
+  .input-entry-button {
+    display: block !important;
+    margin: 0 auto !important;
+  }
 
 }

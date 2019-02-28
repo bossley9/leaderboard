@@ -30,3 +30,12 @@ This conversion began approximately on 01/14/19.
 
   - Finish "hard delete" modal route/ajax call
   - Make layout more responsive for mobile
+
+- 02/28/19: I completed the hard delete route using Sequelize. I search around a bit and use manual SQL queries to get Sequelize to delete everything
+  because Sequelize has trouble truncating tables with foreign keys. I also changed a bit of coloring and moved around a few ui elements for ease of access.
+  I spent a lot of time trying to customize some ui elements with no success. I also took the liberty of improving the site's accessibility.
+  After making the API more mobile-friendly, I started looking into Bamboo.
+
+  TODO:
+
+  - work on accessibility (modal focus: https://www.w3.org/WAI/test-evaluate/preliminary/#title)
