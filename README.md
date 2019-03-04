@@ -39,3 +39,12 @@ This conversion began approximately on 01/14/19.
   TODO:
 
   - work on accessibility (modal focus: https://www.w3.org/WAI/test-evaluate/preliminary/#title)
+
+- 03/04/19: I worked solely on accessibility today, sacrificing visuals for improved accessibility. It should
+  always be that accessibility is above visual effects.
+
+  TODO:
+
+  - Lock tabindex between modal buttons when modal is open
+  - Make tabbing compatible with Safari's _option + tab_ tabbing
+  - Finish javascript enabled note

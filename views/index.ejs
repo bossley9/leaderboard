@@ -22,6 +22,11 @@
   </head>
   <body>
 
+    <div id="javascript-warning-overlay">
+      <em>Note: This site relies on Javascript to make API calls and display
+        content. Please enable Javascript before continuing.</em>
+    </div>
+
     <!-- grid layout -->
     <div class="ui padded relaxed grid centered master">
 
@@ -141,8 +146,9 @@
                     <i class="user icon"></i><%= entryData[i].user_name %>
                   </td>
                   <td class="entry-score"><%= entryData[i].score %></td>
-                  <td class="entry-delete collapsing center aligned">
-                    <i class="x icon"></i>
+                  <td class="entry-delete collapsing center aligned"
+                  tabindex="0">
+                    <p>Delete</p>
                   </td>
                 </tr>
                 <% } %>
@@ -204,7 +210,7 @@
 
 
       <!----------------------------------------------------------------------->
-      <!-- FOOTER ====--------------------------------------------------------->
+      <!-- FOOTER ------------------------------------------------------------->
       <!----------------------------------------------------------------------->
       <footer id="footer" class="row column center aligned">
         <div class="ui segment eight wide">
@@ -214,27 +220,27 @@
             github.com/bossley9
           </a></p>
 
+          <!-- modal activator -->
+          <button id="destroy-tables" class="ui labeled icon button">
+            <i class="trash icon"></i>
+            Destroy Tables
+          </button>
+
         </div>
       </footer>
 
 
     </div>
 
-    <!-- modal activator -->
-    <button id="destroy-tables" class="ui labeled icon button">
-      <i class="trash icon"></i>
-      Destroy Tables
-    </button>
-
 
     <!------------------------------------------------------------------------->
     <!-- MODAL ---------------------------------------------------------------->
     <!------------------------------------------------------------------------->
     <div id="destroy-tables-modal" class="ui basic modal">
-      <h2 class="ui icon header">
+      <h3 class="ui icon header">
         <i class="trash icon"></i>
         <div class="content">Destroy all relevant table data</div>
-      </h2>
+      </h3>
       <div class="content ui grid centered">
         <br /><br />
         <p>WARNING: Once you make this change,
@@ -242,8 +248,8 @@
         <p>Please press "confirm" to confirm this action.</p>
       </div>
       <div class="actions">
-        <div class="ui approve button">Cancel</div>
-        <div class="ui destroy-confirm deny button">Confirm</div>
+        <div tabindex="0" class="ui approve button">Cancel</div>
+        <div tabindex="0" class="ui destroy-confirm deny button">Confirm</div>
       </div>
     </div>
 
@@ -256,6 +262,10 @@
 
 
     <script>
+
+      // remove Javascript warning
+      var warning = document.getElementById("javascript-warning-overlay");
+      //warning.style.display = "none";
 
       // -----------------------------------------------------------------------
       // Semantic Ui
@@ -498,6 +508,14 @@
       // DELETE user/score
       // -----------------------------------------------------------------------
 
+      // accessibility
+
+      $('td.entry-delete').keyup(function(event) {
+        if (event.keyCode === 13) $(this).click();
+      })
+
+      // event
+
       $('td.entry-delete').on('click', function() {
         var gameSelect = document.getElementById("input-gameSelect");
         var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
@@ -526,10 +544,26 @@
       // DESTROY tables
       // -----------------------------------------------------------------------
 
+      // accessibility
+
+      $("#destroy-tables-modal div.ui.approve.button").keyup(function(event) {
+        if (event.keyCode === 13)
+          $("#destroy-tables-modal div.ui.approve.button").click();
+      });
+
+      $("#destroy-tables-modal div.ui.destroy-confirm.deny.button")
+      .keyup(function(event) {
+        if (event.keyCode === 13)
+          $("#destroy-tables-modal div.ui.destroy-confirm.deny.button").click();
+      });
+
+      // event
+
       $('button#destroy-tables').on('click', function() {
         $('#destroy-tables-modal').modal({
           onApprove: function() {}, // cancelled
           onDeny: function() { // confirmed
+
             $.ajax({
               type: 'DELETE',
               url: '/leaderboards/api/destroy',
@@ -539,7 +573,6 @@
                   window.location = "/leaderboards/entries/";
               },
             });
-
 
           }
         }).modal('show');

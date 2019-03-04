@@ -10,12 +10,26 @@ body {
 
 div.master { height: 100% }
 
+#javascript-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 5;
+  background-color: #fff;
+  text-align: center;
+}
+#javascript-warning-overlay em {
+  vertical-align: middle;
+}
+
 /* Chrome, Firefox, Opera, Safari 10.1+ */
-::placeholder { color: #000 !important; opacity: 1; /* Firefox */ }
+::placeholder { color: #222 !important; opacity: 1; /* Firefox */ }
 /* Internet Explorer 10-11 */
-:-ms-input-placeholder { color: #000 !important }
+:-ms-input-placeholder { color: #222 !important }
 /* Microsoft Edge */
-::-ms-input-placeholder { color: #000 !important }
+::-ms-input-placeholder { color: #222 !important }
 
 .ui.default.dropdown:not(.button)>.text,
 .ui.dropdown:not(.button)>.default.text {
@@ -24,9 +38,10 @@ div.master { height: 100% }
 
 .ui.form input:focus, .ui.dropdown:focus {
   border-color: #000 !important;
+  border-width: 2px !important;
 }
 button.ui.button:focus {
-  border: 1px solid #000 !important;
+  border: 2px solid #000 !important;
 }
 
 .deleteGameButton {
@@ -40,8 +55,12 @@ button.ui.button:focus {
 tr:hover td { background-color: #f9f9f9 !important }
 
 .entry-delete { cursor: pointer }
+.entry-delete:focus {
+  outline: none;
+  border: 2px solid #000;
+}
 .entry-delete:hover { background-color: #f25a5a !important }
-.entry-delete:hover i { color: white !important }
+.entry-delete:hover p { color: white !important }
 
 #footer .segment {
   width: 50%;
@@ -52,6 +71,10 @@ tr:hover td { background-color: #f9f9f9 !important }
 .link {
   color: #000;
   text-decoration: underline;
+}
+.link:focus {
+    outline: none;
+    border: 2px solid #000;
 }
 .link:hover {
   color: #000;
@@ -68,10 +91,18 @@ tr:hover td { background-color: #f9f9f9 !important }
   color: #fff !important;
 }
 
+#destroy-tables-modal div.actions div:focus {
+  border: 2px solid #fff !important;
+}
+
 .ui.approve.button { color: #000 !important }
 .destroy-confirm {
   background-color: #f25a5a !important;
   color: #fff !important;
+}
+
+.ui.dimmer {
+  background-color: rgba(0,0,0,0.9) !important;
 }
 
 /* MOBILE DEVICES */
