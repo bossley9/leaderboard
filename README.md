@@ -48,3 +48,14 @@ This conversion began approximately on 01/14/19.
   - Lock tabindex between modal buttons when modal is open
   - Make tabbing compatible with Safari's _option + tab_ tabbing
   - Finish javascript enabled note
+
+- 03/07/19: Today I fixed all font sizes to be larger for better readability, as well as finishing a custom overlay to prompt the user to enable javascript.
+  I then began work on improving tab indexing. I was able to lock tab indices within the modal when open.
+  I spent a very long time trying to attempt to fix the tabbing for the Select element.
+  This was fixed using Semantic's onHide and onShow events, which are not specified clearly and plainly in their documentation.
+  I also decided not to try to account for Safari's _option + tab_ tabbing because it is a specific browser issue and can be changed in Safari's settings.
+  Then I fixed up the html meta tags and polished any last details (sizing and colors).
+  I noticed that the user and score were being submitted twice but the second pair was being disregarded by Sequelize (due to unique constraints). I fixed this error
+  by checking with a boolean variable whether the form had already been submitted. This boolean value is switched once the Ajax call has finished in the success() function.
+  I had to try a slightly different approach for the game input form, since the form contained two buttons. When the ENTER key is pressed, neither buttons call "click" events and
+  an exception case was needed to ensure the form would not lock.

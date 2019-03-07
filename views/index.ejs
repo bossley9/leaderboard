@@ -3,7 +3,13 @@
 <html lang="en-us">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Sam Bossley" />
+    <meta name="description"
+      content="A RESTful API built with Node.js and Sequelize" />
+    <!-- meta keywords are not used in Google's search engine algorithm;
+        however, they are confirmed in Baidu's search engine algorithm -->
+    <meta name="keywords" content="rest, api, node, sequelize, javascript" />
 
     <title>
       <% if (currGame == "") { %>
@@ -22,10 +28,10 @@
   </head>
   <body>
 
-    <div id="javascript-warning-overlay">
+    <div id="javascript-warning-overlay"><div>
       <em>Note: This site relies on Javascript to make API calls and display
         content. Please enable Javascript before continuing.</em>
-    </div>
+    </div></div>
 
     <!-- grid layout -->
     <div class="ui padded relaxed grid centered master">
@@ -116,6 +122,7 @@
 
             </select>
           </div>
+
         </div>
 
 
@@ -195,8 +202,8 @@
                       Add Score</button>
 
                   </div>
-                  <div id="form-userScore-errors" class="ui error message">
-                  </div>
+                  <div id="form-userScore-errors"
+                    class="ui error message"></div>
                 </form>
 
               </th></tr>
@@ -236,7 +243,7 @@
     <!------------------------------------------------------------------------->
     <!-- MODAL ---------------------------------------------------------------->
     <!------------------------------------------------------------------------->
-    <div id="destroy-tables-modal" class="ui basic modal">
+    <div id="destroy-tables-modal" tabindex="-1" class="ui basic modal">
       <h3 class="ui icon header">
         <i class="trash icon"></i>
         <div class="content">Destroy all relevant table data</div>
@@ -263,9 +270,45 @@
 
     <script>
 
-      // remove Javascript warning
+      // -----------------------------------------------------------------------
+      // Accessibility
+      // -----------------------------------------------------------------------
+
+      // remove Javascript enabled warning
       var warning = document.getElementById("javascript-warning-overlay");
-      //warning.style.display = "none";
+      warning.style.display = "none";
+
+      // adjust font size(s)
+      $('*').each(function() {
+        if (parseInt( $(this).css("fontSize") ) < 14)
+          $(this).css({ "font-size": "14px" });
+      });
+
+      // lock tabindices within modal
+      var lockTabIndex = function() {
+        var modalID = 'div#destroy-tables-modal';
+
+        var lastFocusedElem = document.activeElement;
+        var inputs = document.querySelectorAll(modalID + ' [tabindex="0"]');
+
+        $(modalID).on('keydown', function(e) {
+          var key = e.which || e.keyCode || 0;
+          if (key === 9) {
+            if (!e.shiftKey) { // TAB
+              if (inputs[inputs.length - 1] === e.target) {
+                e.preventDefault();
+                inputs[0].focus();
+              }
+            }
+            else { // SHIFT + TAB
+              if (inputs[0] === e.target) {
+                e.preventDefault();
+                inputs[inputs.length - 1].focus();
+              }
+            }
+          }
+        });
+      }
 
       // -----------------------------------------------------------------------
       // Semantic Ui
@@ -367,9 +410,6 @@
         }
       });
 
-      /* game dropdown */
-      $('#input-gameSelect').dropdown();
-
       /* username search list */
       var usernames = [];
       <% for (var u in userList) { %>
@@ -398,71 +438,91 @@
       // <Select> game change
       // -----------------------------------------------------------------------
 
-      $('#input-gameSelect').on('change', function () {
-        var gameName = this.options[this.selectedIndex].text;
-        window.location = "/leaderboards/entries/" + gameName;
+      // prevent page from navigating to the same game every TAB
+      var prevGameName = "";
+
+      $('#input-gameSelect').dropdown({
+        onShow: function() {
+          var select = document.getElementById('input-gameSelect');
+          prevGameName = select.options[select.selectedIndex].text;
+        },
+        onHide: function() {
+          var select = document.getElementById('input-gameSelect');
+          var gameName = select.options[select.selectedIndex].text;
+
+          if (prevGameName != gameName)
+            window.location = "/leaderboards/entries/" + gameName;
+        },
       });
 
       // -----------------------------------------------------------------------
       // CREATE/DELETE game
       // -----------------------------------------------------------------------
 
-      $('#form-game').on('submit', function() {
-        var form = document.getElementById("form-game").elements;
-        var inputGame = form["input-game"].value;
-        // manually remove trailing whitespace
-        inputGame = inputGame.replace(/^\s+|\s+$/gm,'');
-        var gameSelect = document.getElementById("input-gameSelect");
-        var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
-        var createGame = form["submit-createGame"];
-        var deleteGame = form["submit-deleteGame"];
+      var gameFormNotSubmitted = true;
+      $('#form-game').on('submit', function(event) {
+        if (gameFormNotSubmitted) {
+          gameFormNotSubmitted = false;
 
-        /* detect which form button was pressed */
+          var form = document.getElementById("form-game").elements;
+          var inputGame = form["input-game"].value;
+          // manually remove trailing whitespace
+          inputGame = inputGame.replace(/^\s+|\s+$/gm,'');
+          var gameSelect = document.getElementById("input-gameSelect");
+          var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
+          var createGame = form["submit-createGame"];
+          var deleteGame = form["submit-deleteGame"];
 
-        if (createGame.active) {
+          // detect which form button was pressed
 
-          if( $('#form-game').form('is valid') ) {
+          if (createGame.active) {
+            if( $('#form-game').form('is valid') ) {
 
-            // unnecessary because of page reloading but kept for completeness
-            createGame.active = false;
+              // unnecessary because of page reloading but kept for consistency
+              createGame.active = false;
 
-            $('#form-game').removeClass('success');
-
-            $.ajax({
-              type: 'POST',
-              url: '/leaderboards/api/createGame',
-              data: { game: inputGame },
-              success: function(data) {
-                if (data.valid)
-                  window.location = "/leaderboards/entries/" + data.game;
-              },
-            });
-
-          }
-        }
-
-        else if (deleteGame.active) {
-
-          // unnecessary because of page reloading but kept for completeness
-          deleteGame.active = false;
-
-          // clear form and hide validation errors
-          $('#form-game').form('clear');
-
-          if (!gameSelect.firstElementChild.dataset.invalid) {
+              $('#form-game').removeClass('success');
 
               $.ajax({
-                type: 'DELETE',
-                url: '/leaderboards/api/deleteGame',
-                data: { game: currentGame },
+                type: 'POST',
+                url: '/leaderboards/api/createGame',
+                data: { game: inputGame },
                 success: function(data) {
-                  if (data.valid && data.game.length > 0)
-                    window.location = "/leaderboards/entries/";
+                  if (data.valid)
+                    window.location = "/leaderboards/entries/" + data.game;
                 },
               });
 
+            }
           }
 
+          else if (deleteGame.active) {
+
+            deleteGame.active = false;
+
+            // clear form and hide validation errors
+            $('#form-game').form('clear');
+
+            if (!gameSelect.firstElementChild.dataset.invalid) {
+
+                $.ajax({
+                  type: 'DELETE',
+                  url: '/leaderboards/api/deleteGame',
+                  data: { game: currentGame },
+                  success: function(data) {
+                    gameFormNotSubmitted = true;
+
+                    if (data.valid && data.game.length > 0)
+                      window.location = "/leaderboards/entries/";
+                  },
+                });
+
+            }
+
+          }
+
+          // in case neither create nor delete buttons are detected, reset form
+          else gameFormNotSubmitted = true;
         }
 
         return false;
@@ -472,32 +532,39 @@
       // CREATE user/score
       // -----------------------------------------------------------------------
 
-      $('#form-userScore').on('submit', function() {
-        var form = document.getElementById("form-userScore").elements;
-        var gameSelect = document.getElementById("input-gameSelect");
-        var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
-        var username = form["input-user"].value;
-        // manually remove trailing whitespace
-        username = username.replace(/^\s+|\s+$/gm,'');
-        var score = form["input-score"].value;
+      var userScoreFormNotSubmitted = true;
+      $('#form-userScore').on('submit', function(e) {
+        if (userScoreFormNotSubmitted) {
+          userScoreFormNotSubmitted = false;
 
-        if( $('#form-userScore').form('is valid') ) {
-          if (!gameSelect.firstElementChild.dataset.invalid) {
+          var form = document.getElementById("form-userScore").elements;
+          var gameSelect = document.getElementById("input-gameSelect");
+          var currentGame = gameSelect.options[gameSelect.selectedIndex].text;
+          var username = form["input-user"].value;
+          // manually remove trailing whitespace
+          username = username.replace(/^\s+|\s+$/gm,'');
+          var score = form["input-score"].value;
 
-            $.ajax({
-              type: 'POST',
-              url: '/leaderboards/api/createUserScore',
-              data: {
-                game: currentGame,
-                username: username,
-                score: score,
-              },
-              success: function(data) {
-                if (data.valid && data.user == username && data.score == score)
-                  location.reload();
-              },
-            });
+          if( $('#form-userScore').form('is valid') ) {
+            if (!gameSelect.firstElementChild.dataset.invalid) {
 
+              $.ajax({
+                type: 'POST',
+                url: '/leaderboards/api/createUserScore',
+                data: {
+                  game: currentGame,
+                  username: username,
+                  score: score,
+                },
+                success: function(data) {
+                  userScoreFormNotSubmitted = true;
+
+                  if (data.valid && data.user == username && data.score == score)
+                    location.reload();
+                },
+              });
+
+            }
           }
         }
 
@@ -560,6 +627,8 @@
       // event
 
       $('button#destroy-tables').on('click', function() {
+        // modal tabindex locking
+        lockTabIndex();
         $('#destroy-tables-modal').modal({
           onApprove: function() {}, // cancelled
           onDeny: function() { // confirmed

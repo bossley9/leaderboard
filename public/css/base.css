@@ -1,4 +1,7 @@
 
+/*
+** VARIABLES
+*/
 
 /* red: #f25a5a */
 /* gray: #f9f9f9 */
@@ -20,16 +23,32 @@ div.master { height: 100% }
   background-color: #fff;
   text-align: center;
 }
+#javascript-warning-overlay div {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
 #javascript-warning-overlay em {
-  vertical-align: middle;
+  position: absolute;
+  display: block;
+  top: 50%;
+  left: 50%;
+
+  font-size: 20px;
+
+  -ms-transform: translateX(-50%) translateY(-50%);
+  -o-transform: translateX(-50%) translateY(-50%);
+  -moz-transform: translateX(-50%) translateY(-50%);
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
 }
 
 /* Chrome, Firefox, Opera, Safari 10.1+ */
-::placeholder { color: #222 !important; opacity: 1; /* Firefox */ }
+::placeholder { color: #555 !important; opacity: 1; /* Firefox */ }
 /* Internet Explorer 10-11 */
-:-ms-input-placeholder { color: #222 !important }
+:-ms-input-placeholder { color: #555 !important }
 /* Microsoft Edge */
-::-ms-input-placeholder { color: #222 !important }
+::-ms-input-placeholder { color: #555 !important }
 
 .ui.default.dropdown:not(.button)>.text,
 .ui.dropdown:not(.button)>.default.text {
@@ -52,12 +71,13 @@ button.ui.button:focus {
   color: #fff !important;
 }
 
-tr:hover td { background-color: #f9f9f9 !important }
+tr:hover td { background-color: #f1f1f1 !important; }
 
 .entry-delete { cursor: pointer }
 .entry-delete:focus {
   outline: none;
   border: 2px solid #000;
+  border-top: 2px solid #000 !important;
 }
 .entry-delete:hover { background-color: #f25a5a !important }
 .entry-delete:hover p { color: white !important }
@@ -105,7 +125,10 @@ tr:hover td { background-color: #f9f9f9 !important }
   background-color: rgba(0,0,0,0.9) !important;
 }
 
-/* MOBILE DEVICES */
+/*
+** MOBILE DEVICES
+*/
+
 @media only screen and (max-width: 775px) {
 
   .input-game-buttons {

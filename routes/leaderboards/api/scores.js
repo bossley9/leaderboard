@@ -129,7 +129,7 @@ module.exports.deleteUserScore = function(db) {
       },
       include: [{ model: db.user, where: {
         delete_stamp: null,
-        name: req.body.username 
+        name: req.body.username
       } }]
     }).then(function(scores) {
 
