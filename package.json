@@ -1,6 +1,6 @@
 {
   "name": "leaderboard",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "description": "A RESTful API Leaderboard Node module designed for use in games and other projects",
   "main": "app.js",
   "scripts": {
