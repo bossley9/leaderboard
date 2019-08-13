@@ -84,3 +84,5 @@ This conversion began approximately on 01/14/19.
   an exception case was needed to ensure the form would not lock.
 
 - 07/22/19: After a long hiatus, I fixed security vulnerabilities and updated to ES6+. I first had to make sure everything was running properly before transitioning.
+
+- 08/13/19: I had to reduce VARCHAR sizes from 255 bytes to 100 bytes because the MySQL max key length is 767 bytes and MySQL uses more space for binary unique strings. I also improved setup/installation instructions for future reference.
