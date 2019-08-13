@@ -1,6 +1,3 @@
-
-
-
 // dependencies
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -18,7 +15,7 @@ app.use(express.static('public'));
 urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 // promise to verify database exists before establishing a connection
-const KEYS = require('./KEYS');
+const KEYS = require('./KEYS.json');
 var dbPromise = new Promise(function(resolve, reject) {
 
   var mysql = require('mysql2');

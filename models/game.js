@@ -15,7 +15,7 @@
 module.exports = (sequelize, DataTypes) => {
   const game = sequelize.define('game', {
     name: {
-      type: DataTypes.STRING.BINARY,
+      type: DataTypes.STRING(100).BINARY,
       unique: true,
     },
     delete_stamp: {

@@ -6,8 +6,31 @@ MySQL leaderboard into a MVC driven API using Sequelize for modeling.
 
 This conversion began approximately on 01/14/19.
 
+## Setup/Installation
 
-### Progress Report:
+1. Install package dependencies:
+    ```
+    npm i
+    ```
+
+2. Create a `KEYS.json` file in the root directory containing the following information:
+    ```json
+    {
+      "host": "localhostOrHostIPHere",
+      "username": "MySQLUserNameHere",
+      "password": "MySQLPasswordHere",
+      "database": "dbNameHere"
+    }
+    ```
+    This file is ignored by the git repository on commit.
+
+3. Make sure the MySQL user specified in the `KEYS.json` file exists and has been granted database creation privileges:
+    ```sql
+    GRANT ALL PRIVILEGES ON *.* TO ‘MySQLUserNameHere'@'localhostOrHostIPHere' IDENTIFIED BY 'MySQLPasswordHere';
+    FLUSH PRIVILEGES;
+    ```
+
+## Progress Report:
 
 ...
 
@@ -59,3 +82,7 @@ This conversion began approximately on 01/14/19.
   by checking with a boolean variable whether the form had already been submitted. This boolean value is switched once the Ajax call has finished in the success() function.
   I had to try a slightly different approach for the game input form, since the form contained two buttons. When the ENTER key is pressed, neither buttons call "click" events and
   an exception case was needed to ensure the form would not lock.
+
+- 07/22/19: After a long hiatus, I fixed security vulnerabilities and updated to ES6+. I first had to make sure everything was running properly before transitioning.
+
+- 08/13/19: I had to reduce VARCHAR sizes from 255 bytes to 100 bytes because the MySQL max key length is 767 bytes and MySQL uses more space for binary unique strings. I also improved setup/installation instructions for future reference.
